@@ -1,0 +1,60 @@
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+.btn-file:hover {
+  background-color: lightgrey;
+  border-radius: 5px;
+}
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  outline: none;
+  border: 1px solid grey;
+  background: white;
+  cursor: inherit;
+  display: block;
+}
+.btn-xs {
+  font-size: xx-small;
+  border: 1px solid lightgray;
+  padding: 0.05rem 0.15rem;
+  font-weight: bold
+}
+.btn-hover:hover {
+  background-color: lightgray;
+  color: white;
+}
+.indent {
+  padding-left: 15px;
+}
+
+.hover-button {
+  color: lightgray!important;
+  font-size: smaller;
+  padding: 2px 4px 6px 6px;
+  position: relative;
+  tops: -2px;
+  border-radius: 25%;
+  &:hover {
+    color: black!important;
+    background-color: lightgray;
+  }
+}
+.table-xs {
+  font-size: .8rem;
+  line-height: 1rem;
+  td {
+    padding: .25rem
+  }
+  th {
+    padding: .25rem
+  }
+}
