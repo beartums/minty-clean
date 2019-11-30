@@ -25,8 +25,8 @@ gem 'jbuilder', '~> 2.5'
 gem 'webpacker'
 gem 'react-rails'
 # Use SCSS for stylesheets
-gem 'sassc'
-gem 'bootstrap'
+gem 'sassc-rails'
+gem 'bootstrap-sass'
 
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 4.0'

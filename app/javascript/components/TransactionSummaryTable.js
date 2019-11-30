@@ -180,7 +180,14 @@ class TransactionSummaryTable extends React.Component {
                   })}
                   <tr>
                     <td colSpan="2"></td>
-                    { periods.map( period => <td>{numeral(period.getCategorySums(catsToSummarize)).format('$0.00')}</td>)}
+                    { periods.map( (period,idx) => { return ( 
+                        <td key={idx} className="text-right">
+                          <strong>
+                            {numeral(period.getCategorySums(catsToSummarize)).format('$0.00')}
+                          </strong>
+                        </td>  
+                      )}
+                    )}
                   </tr>
                 </tbody>
               </table>

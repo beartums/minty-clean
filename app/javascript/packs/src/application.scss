@@ -1,4 +1,5 @@
-@import '~bootstrap/dist/css/bootstrap';
-@import './custom.scss';
 
 
+@import "~bootstrap/scss/bootstrap"; // never forget the semicolon
+@import "./custom";
+@import "../../../assets/stylesheets/home";
