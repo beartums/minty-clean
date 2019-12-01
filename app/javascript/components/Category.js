@@ -42,7 +42,11 @@ class Category extends React.Component {
             <table className="table table-condensed table-xs">
               <tbody>
                 {this.props.category.transactions.map( transaction => {
-                  return <Transaction key={transaction.id} transaction={transaction} />
+                  return <Transaction key={transaction.id} 
+                                      transaction={transaction}
+                                      descriptionWidth={30}
+                                      dateFormat="DD MMM"
+                                      fields={['date','description','account_name','amount']} />
                 })}
               </tbody>
             </table>
