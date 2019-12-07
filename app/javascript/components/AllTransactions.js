@@ -1,7 +1,9 @@
 import React from "react"
 import PropTypes from "prop-types"
-import Transaction from "./Transaction";
+import TransactionRow from "./TransactionRow";
+import Transaction from '../models/Transaction';
 import DataService from '../services/dataService';
+import {SORT, Summarizer} from '../models/Summarizer';
 import $ from 'jquery'
 import ImportTransactionsForm from './ImportTransactionsForm';
 import { FaSearch } from 'react-icons/fa'
@@ -9,12 +11,20 @@ import { FaSearch } from 'react-icons/fa'
 class AllTransactions extends React.Component {
   constructor(props) {
     super(props);
+    let summarizer = new Summarizer(this.props.transactions);
+    summarizer.addSummary('date',1,SORT.DIRECTION.DESCENDING)
+              .addSummary('category',2,SORT.DIRECTION.ASCENDING)
+              .addSummary('amount',3,SORT.DIRECTION.ASCENDING)
+      
     this.state = {
       transactions: this.props.transactions, 
       DataService: DataService,
       search: null,
+      summarizer: summarizer,
       sort: [
-        {prop: 'date', direction: 'd'}
+        {prop: 'date', direction: 'd'},
+        {prop: 'category', direction: 'a'},
+        {prop: 'amount', direction: 'a'},
       ]
     };
     this.searchTimeout = null;
@@ -76,7 +86,7 @@ class AllTransactions extends React.Component {
                   + this.coalesce(t.notes, '')
       return (text.toLowerCase().indexOf(this.state.search.toLowerCase())>-1);
     })
-    transactions = this.sort(transactions);
+    transactions = this.state.summarizer.getSortedList(transactions)
    
     return (
       <span>
@@ -94,12 +104,11 @@ class AllTransactions extends React.Component {
           <tbody>
             { transactions.map( transaction => {
               return (
-                <Transaction key={transaction.id} 
+                <TransactionRow key={transaction.id} 
                               transaction={transaction} 
                               optionList={optionList} 
                               changeCategory={this.changeTransactionCategory}
-                              showCategory={true}
-                              allowCategoryEdit={true} />
+                              fields={['date','description','amount','edit-button','category','account_name']} />
               )
             })
           }

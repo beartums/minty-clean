@@ -6,7 +6,7 @@ import moment from 'moment';
 import { FaEdit, FaTimes } from 'react-icons/fa';
 
 
-class Transaction extends React.Component {
+class TransactionRow extends React.Component {
 
   constructor(props) {
     super(props);
@@ -29,9 +29,8 @@ class Transaction extends React.Component {
   }
 
   getCategoryColumn = () => {
-    if (!this.props.showCategory) return null;
 
-    if (this.props.showCategory && !this.state.isBeingEdited) {
+    if (!this.state.isBeingEdited) {
         return this.props.transaction.category
     } else if (this.state.isBeingEdited) {
       return (
@@ -44,11 +43,9 @@ class Transaction extends React.Component {
 
   }
   getCategoryEditColumn = () => {
-    if (this.props.allowCategoryEdit) {
-      return !this.state.isBeingEdited ? 
-                    <td><FaEdit onClick={this.editCategory} /></td> :
-                    <td><FaTimes onClick={this.editCategory} /></td>
-    }
+    return !this.state.isBeingEdited ? 
+                    <FaEdit onClick={this.editCategory} /> :
+                    <FaTimes onClick={this.editCategory} />
   }
 
   left = (string, length) => {
@@ -93,6 +90,13 @@ class Transaction extends React.Component {
         </td>
       )
     }
+    if (fieldName == 'edit-button') {
+      return (
+        <td key={index} className="text-right">
+          {this.getCategoryEditColumn(transaction)}
+        </td>
+      )
+    }
   }
   
 
@@ -100,15 +104,14 @@ class Transaction extends React.Component {
     return (
       <tr>
         {this.props.fields.map( (field,index) => { return this.getCell(this.props.transaction, field, index)})}
-        { this.getCategoryEditColumn() }
       </tr>
     )
   }
 }
 
-export default Transaction;
+export default TransactionRow;
 
-Transaction.propTypes = {
+TransactionRow.propTypes = {
   transaction: PropTypes.shape({
     date: PropTypes.string,
     amount: PropTypes.float,
@@ -116,17 +119,15 @@ Transaction.propTypes = {
     account: PropTypes.string,
     original_description: PropTypes.string
   }),
-  allowCategoryEdit: PropTypes.bool,
   optionList: PropTypes.arrayOf(PropTypes.object),  
   changeCategory: PropTypes.func,
-  showCategory: PropTypes.bool, 
   fields: PropTypes.arrayOf(PropTypes.string),
   dateFormat: PropTypes.string,
   descriptionWidth: PropTypes.number
 }
 
-Transaction.defaultProps = {
-  fields: ['date','description','account_name','category','amount'],
+TransactionRow.defaultProps = {
+  fields: ['date','description','amount','category','account_name'],
   dateFormat: 'DD MMM YY',
   descriptionWidth: 40
 }

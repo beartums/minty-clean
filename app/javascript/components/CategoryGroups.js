@@ -5,7 +5,8 @@ import TransactionSummaryTable from './TransactionSummaryTable';
 import { getCategories } from '../services/transactionService'
 import $ from 'jquery';
 import PropTypes from 'prop-types';
-import Transaction from './Transaction';
+import Transaction from './TransactionRow';
+import CategoryGroup from '../models/CategoryGroup'
 
 var GROUP_NAME_DIALOG = {
   METHODS: {
@@ -21,7 +22,7 @@ var GROUP_DELETE_DIALOG = {
 }
 
 var LOCAL_SETTINGS = {
-  MIN_DATE: new Date('8/6/2019'),
+  MIN_DATE: new Date('8/1/2019'),
   IGNORE_BEFORE_MIN_DATE: false,
 }
 
@@ -300,6 +301,7 @@ class CategoryGroups extends React.Component {
         obj[index] = {id: group.id, name: group.name, categories: []};
       }
       obj[index].categories.push(category)
+
       return obj;
 
     }, {
@@ -337,11 +339,11 @@ class CategoryGroups extends React.Component {
       </table>
     )
   }
-
   render = () => {
     let groups = Object.values(this.state.categoryIndex)
         .sort((a,b) => a.name<b.name ? -1 : 1)
         .filter(group => group.categories.length > 0);
+    let cgs = groups.map( group => new CategoryGroup(group))
 
     return (
       <span>

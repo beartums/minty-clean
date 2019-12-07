@@ -1,5 +1,5 @@
 import React from 'react';
-import Transaction from './Transaction';
+import TransactionRow from './TransactionRow';
 import ChangeGroupDropdownItem from './ChangeGroupDropdownItem';
 
 class Category extends React.Component {
@@ -42,7 +42,7 @@ class Category extends React.Component {
             <table className="table table-condensed table-xs">
               <tbody>
                 {this.props.category.transactions.map( transaction => {
-                  return <Transaction key={transaction.id} 
+                  return <TransactionRow key={transaction.id} 
                                       transaction={transaction}
                                       descriptionWidth={30}
                                       dateFormat="DD MMM"

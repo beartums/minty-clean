@@ -2,7 +2,7 @@ import React from 'react';
 import { getSignedAmount } from '../services/transactionService';
 import * as numeral from 'numeral';
 import PropTypes from 'prop-types';
-import { Period } from './classes';
+import Period from '../models/Period';
 import moment from 'moment';
 
 class TransactionSummaryRow extends React.Component {

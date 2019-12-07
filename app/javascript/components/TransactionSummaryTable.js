@@ -3,12 +3,12 @@ import TransactionSummaryRow from './TransactionSummaryRow';
 import TransactionSummaryHeader from './TransactionSummaryHeader';
 import { FaChevronLeft, FaChevronRight, FaBackward, FaForward, FaStepBackward, FaStepForward } from 'react-icons/fa';
 import * as numeral from 'numeral';
-import { Period } from './classes';
+import Period from '../models/Period';
 import * as LSS from '../services/localSettingsService';
 
 
 var GLOBAL_SETTINGS = {
-  START_DATE: new Date(2019,7,6), // August 6 2019,
+  START_DATE: new Date(2019,7,1), // August 6 2019,
   PERIOD_RANGE_TYPE: 'M',
   PERIOD_RANGE_COUNT: 1,
   PERIOD_COUNT: 3,

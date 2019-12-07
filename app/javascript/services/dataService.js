@@ -72,15 +72,29 @@ class DataService {
       body[ENTITIES.TRANSACTION] = newValues;
       return DataService.goFetch(url, "PATCH", body);
   }
+  static getTransactions = () => {
+    let url = `${URL.TRANSACTIONS}/`;
+    let body = {};
+    return DataService.goFetch(url, "GET");
+  }
+  static uploadTransactions = (file) => {
+    let formData = new FormData();
+    formData.append('file', file);
+    let url = `${URL.TRANSACTIONS}/import`;
+    let body = formData;
+    return DataService.goFetch(url, "POST", formData, false);
+  }
 
-  static goFetch = (url, method, body) => {
-    return fetch(url, {
+  static goFetch = (url, method, body, shouldJsonify) => {
+    let request = {
       method: method,
-      body: JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json'
       }
-    });
+    }
+    if (body) request.body = shouldJsonify ? JSON.stringify(body) : body
+
+    return fetch(url, request);
   }
 
 }
