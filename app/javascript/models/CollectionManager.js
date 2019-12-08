@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { SORT, Sorter } from './Sorter';
 
 class CollectionManager {
   items = [];
@@ -18,6 +19,7 @@ class CollectionManager {
     this.itemType = itemType;
     this.itemIdProp = itemIdProp;
     this.itemTypePlural = itemTypePlural || itemType + 's';
+    this.sorter = new Sorter()
   }
 
   push(item) {
@@ -117,7 +119,9 @@ class CollectionManager {
     return this.getItemByIndex(indexName,keyObject);
   }
 
-  reindexItem(item, item_id) {}
+  reindexItem(item, item_id) {
+    
+  }
 
 }
 

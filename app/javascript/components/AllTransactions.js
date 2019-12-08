@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import TransactionRow from "./TransactionRow";
 import Transaction from '../models/Transaction';
 import DataService from '../services/dataService';
-import {SORT, Summarizer} from '../models/Summarizer';
+import {SORT, Sorter} from '../models/Sorter';
 import $ from 'jquery'
 import ImportTransactionsForm from './ImportTransactionsForm';
 import { FaSearch } from 'react-icons/fa'
@@ -11,8 +11,8 @@ import { FaSearch } from 'react-icons/fa'
 class AllTransactions extends React.Component {
   constructor(props) {
     super(props);
-    let summarizer = new Summarizer(this.props.transactions);
-    summarizer.addSummary('date',1,SORT.DIRECTION.DESCENDING)
+    let sorter = new Sorter(this.props.transactions);
+    sorter.addSummary('date',1,SORT.DIRECTION.DESCENDING)
               .addSummary('category',2,SORT.DIRECTION.ASCENDING)
               .addSummary('amount',3,SORT.DIRECTION.ASCENDING)
       
@@ -20,7 +20,7 @@ class AllTransactions extends React.Component {
       transactions: this.props.transactions, 
       DataService: DataService,
       search: null,
-      summarizer: summarizer,
+      sorter: sorter,
       sort: [
         {prop: 'date', direction: 'd'},
         {prop: 'category', direction: 'a'},
@@ -86,7 +86,8 @@ class AllTransactions extends React.Component {
                   + this.coalesce(t.notes, '')
       return (text.toLowerCase().indexOf(this.state.search.toLowerCase())>-1);
     })
-    transactions = this.state.summarizer.getSortedList(transactions)
+    
+    transactions = this.state.sorter.sortList(transactions)
    
     return (
       <span>

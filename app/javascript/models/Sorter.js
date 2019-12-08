@@ -4,38 +4,47 @@ export const SORT = {
     DESCENDING: 'desc'
   }
 }
-export class SummarizerField {
-  constructor(name, sortRank, sortDirection, summarizeGroup, summarizeOn) {
+export class SortField {
+  constructor(name, sortRank, sortDirection, sortOn) {
     this.name = name;
     this.sortRank = sortRank
     this.sortDirection = sortDirection || 'asc';
-    this.summarizeGroup = summarizeGroup || sortRank==true;
-    this.summarizeOn = summarizeOn // field to summarize on
+    this.sortOn = sortOn // property to sort on
   }
 }
-export class Summarizer {
-  constructor(listToSummarize,summarizerFields) {
-    this.listToSummarize = listToSummarize || [];
-    this.summarizerFields = summarizerFields || [];
+export class Sorter {
+  constructor(listToSort,SortFields) {
+    this.listToSort = listToSort || [];
+    this.SortFields = SortFields || [];
   }
-  addSummary = (name, sortRank, sortDirection, summarizeGroup, summarizeOn) => {
-    let sumField = new SummarizerField(name, sortRank, sortDirection, summarizeGroup, summarizeOn);
-    this.summarizerFields.push(sumField);
+  addSummary = (name, sortRank, sortDirection, sortOn) => {
+    let sortField = new SortField(name, sortRank, sortDirection, sortOn);
+    this.SortFields.push(sortField);
     return this; // for chaining
   }
-  addSummarizerField = (sumField) => {
+  addSortField = (sortField) => {
     // TODO: error checking
-    this.summarizerFields.push(sumField);
+    this.SortFields.push(sortField);
     return this; // for chaining
   }
   getRankedFields = () => {
-    let fields = this.summarizerFields
+    let fields = this.SortFields
             .filter( field => field.sortRank )
             .sort( (a,b) => a.sortRank<b.sortRank ? -1 : 1);
     return fields;
   }
-  getSortedList = (list) => {
-    list = list || this.listToSummarize;
+  
+  /**
+   * Sort the list!
+   *
+   * @param {*} list {array<item>} Unsorted array of items to sort
+   * @param {*} sortFields  {array<SortFields>} Array of sort prop definitions in priority order
+   * @returns sorted list of items
+   * @memberof Sorter
+   */
+  sortList(list, sortFields) {
+    sortFields = sortFields || this.getRankedFields()
+    list = list || this.listToSort;
     let sorters = this.getRankedFields();
 
     let sortedList = list.sort( (a, b) => {

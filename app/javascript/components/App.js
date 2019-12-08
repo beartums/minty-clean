@@ -8,8 +8,17 @@ import LocalSettingsService from '../services/localSettingsService';
 import SETTINGS from '../services/settings';
 import CategoryGroups from './CategoryGroups';
 import AllTransactions from './AllTransactions';
+import { AiOutlineMan } from 'react-icons/ai';
+import { GiTeapotLeaves } from 'react-icons/gi'
 
+/**
+ * Router Component for application
+ * @class App
+ * @param  {any} props React Properties 
+ * @extends React.Component
+ */
 class App extends React.Component {
+
   constructor(props) {
     console.time('setup')
     super(props);
@@ -19,10 +28,20 @@ class App extends React.Component {
     }
   }
 
+  /**
+   * React hook; called after component has been rendered.  In this case used to load our transactions
+   * @return {void}
+   * @memberof App
+   */
   componentDidMount() {
     this.fetchTransactions().then(() => this.setState({isLoading: false}));
   }
 
+  /**
+   * Fetch all transactions from the database and prepare them for display
+   * @return {void}
+   * @memberof App
+   */
   fetchTransactions = () => {
     return DataService.getTransactions()
       .then((response) => {return response.json()})
@@ -52,6 +71,12 @@ class App extends React.Component {
       });
   }
 
+  /**
+   * Uploads csv file of transactions; passed down to AllTransactions
+   * @param e {FileEvent}
+   * @return {void}
+   * @memberof App
+   */
   handleUploadButtonClick = (e) => {
     let file = e.target.files[0];
 
@@ -71,7 +96,7 @@ class App extends React.Component {
         ) : (
           <BrowserRouter>
             <nav className="navbar navbar-expand-sm  navbar-light bg-light">
-              <a className="navbar-brand" href="#">Minty</a>
+              <a className="navbar-brand" title="MINTY! (of course, you know -- Men + Tea}" href="#">(<AiOutlineMan /><AiOutlineMan />) + <GiTeapotLeaves /></a>
               <div className="navbar-collapse collapse">
                 <ul className="navbar-nav mr-auto">
                   <li className="nav-item"><Link className="nav-link" to="/">Summary</Link></li>
