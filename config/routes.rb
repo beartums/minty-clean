@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       resources :category_groups, only: [:index, :create, :destroy, :update]
       resources :category_group_memberships, only: [:index, :create, :destroy, :update]
       resources :transactions, only: [:index, :create, :destroy, :update]
+      resources :configurations, only: [:index, :create, :destroy, :update, :show]
       resources :transactions do 
         collection do
           post :import

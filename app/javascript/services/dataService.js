@@ -8,6 +8,10 @@ const ENTITIES= {
   MEMBERSHIP: 'category_group_membership',
   TRANSACTION: 'transaction'
 }
+const BODY_TYPE = {
+  FORM: 'form',
+  JSON: 'json'
+}
 
 class DataService {
   
@@ -82,17 +86,20 @@ class DataService {
     formData.append('file', file);
     let url = `${URL.TRANSACTIONS}/import`;
     let body = formData;
-    return DataService.goFetch(url, "POST", formData, false);
+    return DataService.goFetch(url, "POST", formData, BODY_TYPE.FORM);
   }
 
-  static goFetch = (url, method, body, shouldJsonify) => {
+  static goFetch = (url, method, body, bodyType) => {
     let request = {
       method: method,
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: {}
     }
-    if (body) request.body = shouldJsonify ? JSON.stringify(body) : body
+    if (bodyType == BODY_TYPE.FORM) {
+      request.body = body;
+    } else {
+      request.body =  JSON.stringify(body);
+      request.headers['Content-Type'] = 'application/json';
+    }
 
     return fetch(url, request);
   }

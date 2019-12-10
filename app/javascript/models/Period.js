@@ -1,7 +1,14 @@
 import moment from 'moment';
 import { getSignedAmount } from '../services/transactionService';
+import CollectionManager from './CollectionManager';
 
 export default class Period {
+
+  static collection;
+  static indices = [
+    { name: 'byId', properties: ['id'], isCollection: false},
+
+  ]
   rangeType = 'M';
   rangeCount = 1;
   startDate = null;
@@ -10,17 +17,36 @@ export default class Period {
   transactionsByCategory = [];
   totalsByCategory = {};
 
-  constructor(rangeStartDate, periodOffset, rangeType, rangeCount) {
+  constructor(referenceStartDate, periodOffset, rangeType, rangeCount) {
     this.rangeType = rangeType || 'M';
     this.rangeCount = rangeCount || 1;
     periodOffset = periodOffset || 0;
     let totalRangeCount = rangeCount * periodOffset;
-    let startDate = moment(rangeStartDate).add(totalRangeCount, rangeType);
+    let startDate = moment(referenceStartDate).add(totalRangeCount, rangeType);
     this.startDate = startDate.toDate();
     let endDate = startDate.add(rangeCount, rangeType);
     this.endDate = endDate.toDate();
+    if (!this.collection) this.createCollection();
+    this.collection.push(this);
   }
 
+  get id() {
+    this.isoStartDate + '->' + this.isoEndDate;
+  }
+  get isoStartDate() {
+    this.startDate.toISOString().split('T')[0];
+  }
+  get isoEndDate() {
+    this.endDate.toISOString().split('T')[0];
+  }
+  get collection() {
+    return Period.collection;
+  }
+
+  createCollection() {
+    Period.collection = new CollectionManager('Period','id','Periods');
+    this.collection.addIndices(Period.indices);
+  }
   setPeriodTransactions = (transactions) => {
     // take a list of raw transactions and collect them if they are in this period
     this.transactions = [];

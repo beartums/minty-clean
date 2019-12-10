@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_18_033702) do
+ActiveRecord::Schema.define(version: 2019_12_08_193703) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,12 +21,22 @@ ActiveRecord::Schema.define(version: 2019_10_18_033702) do
     t.integer "profile_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "configuration_id"
     t.index ["category"], name: "index_category_group_memberships_on_category"
     t.index ["category_group_id"], name: "index_category_group_memberships_on_category_group_id"
   end
 
   create_table "category_groups", force: :cascade do |t|
     t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "configuration_id"
+  end
+
+  create_table "configurations", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

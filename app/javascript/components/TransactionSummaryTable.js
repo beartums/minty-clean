@@ -61,7 +61,7 @@ class TransactionSummaryTable extends React.Component {
     let period;
     if (delta === Number.MAX_SAFE_INTEGER) {
       period = this.state.lastPeriod;
-      period = period.getOffestPeriod(-1 * this.state.SETTINGS.PERIOD_COUNT + 1);
+      period = period.getOffsetPeriod(-1 * this.state.SETTINGS.PERIOD_COUNT + 1);
     } else if (delta === Number.MIN_SAFE_INTEGER) {
       period = this.state.firstPeriod;
     } else {

@@ -4,7 +4,7 @@ import { SORT, Sorter } from './Sorter';
 class CollectionManager {
   items = [];
   itemsHash = {};
-  itemClones = {};
+  clonesHash = {};
   itemType = '';
   itemTypePlural = '';
   itemTypeDescription = '';
@@ -23,30 +23,30 @@ class CollectionManager {
   }
 
   push(item) {
-    if (this.itemsHash[item[this.itemIdProp]]) this.removeById(item[this.itemIdProp]);
+    if (this.itemsHash[item[this.itemIdProp]]) this.removeItemById(item[this.itemIdProp]);
     this.items.push(item);
     this.itemsHash[item[this.itemIdProp]] = item;
-    this.itemClones[item[this.itemIdProp]] = _.cloneDeep(item);
+    this.clonesHash[item[this.itemIdProp]] = _.cloneDeep(item);
     this.addItemToAllIndices(item);
   }
 
   remove(item) {
-    this.removeById(item[this.itemIdProp]);
+    this.removeItemById(item[this.itemIdProp]);
   }
 
-  removeById(itemId) {
-    let item = this.itemsHash[itemId];
+  removeItemById(itemId) {
+    let item = this.itemsHash[itemId]
     if (item) {
+      this.removeItemFromAllIndices(item,itemId)
       delete this.itemsHash[itemId];
+      delete this.clonesHash[itemId];
       let idx = this.items.indexOf(item);
       if (idx) this.items.splice(idx,1);
     }
-    this.removeItemFromAllIndices(item)
   }
 
   addIndex(name, properties, isCollection) {
     properties = typeof(properties)=='Array' ? properties : [properties]
-    if (this.indices[name]) this.removeIndex(name);
     this.indices[name] = { name, properties, isCollection, items: {} };
     this.addAllItemsToIndex(name);
   }
@@ -57,13 +57,13 @@ class CollectionManager {
   }
 
   addAllItemsToIndex(indexName) {
+    let index = this.indices[indexName];
     this.items.forEach( item => {
-      this.addItemToIndex(item, indexName);
+      this.addItemToIndex(item, index);
     });
   }
 
-  addItemToIndex(item, indexName) {
-    let index = this.indices[indexName];
+  addItemToIndex(item, index) {
     let key = this.getItemIndexKey(item, index);
     if (index.isCollection) {
       if (index.items[key]) index.items[key].push(item)
@@ -74,26 +74,24 @@ class CollectionManager {
   }
 
   addItemToAllIndices(item) {
-    let indexNames = Object.keys(this.indices);
-    indexNames.forEach( indexName => {
-      this.addItemToIndex(item, indexName)
+    this.getAllIndices().forEach( index => {
+      this.addItemToIndex(item, index)
     })
   }
 
-  removeItemFromIndex(item, indexName) {
-    let index = this.indices[indexName]
+  removeItemFromIndex(item, index, itemObject) {
     let key = this.getItemIndexKey(item,index);
     if (!index.isCollection) {
       delete index.items[key];
     } else {
-      index.items.splice(index.items[key].indexOf(item),1)
+      index.items.splice(index.items[key].indexOf(itemObject),1)
     }
   }
 
-  removeItemFromAllIndices(item) {
-    let indexNames = Object.keys(this.indices);
-    indexNames.forEach( indexName => {
-      this.removeItemFromIndex(item, indexName)
+  removeItemFromAllIndices(item, itemObject) {
+    let indices = Object.values(this.indices);
+    indices.forEach( index => {
+      this.removeItemFromIndex(item, index, itemObject)
     })
   }
 
@@ -107,7 +105,7 @@ class CollectionManager {
   }
 
   getItemById(id) {
-
+    return this.itemsHash[id];
   }
 
   getItemByIndex(indexName,keyObject) {
@@ -119,8 +117,12 @@ class CollectionManager {
     return this.getItemByIndex(indexName,keyObject);
   }
 
-  reindexItem(item, item_id) {
-    
+  getAllIndices() {
+    return Object.values(this.indices);
+  }
+  reindex(item, itemId) {
+    this.removeItemById(itemId);
+    this.push(item)
   }
 
 }

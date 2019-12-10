@@ -81,10 +81,10 @@ class App extends React.Component {
     let file = e.target.files[0];
 
     DataService.uploadTransactions(file)
-      .then(response => {
-        console.log(response);
-        this.fetchTransactions();
-      })
+    .then(response => {
+      console.log(response);
+      this.fetchTransactions();
+    })
   }
 
   render() {
@@ -96,7 +96,7 @@ class App extends React.Component {
         ) : (
           <BrowserRouter>
             <nav className="navbar navbar-expand-sm  navbar-light bg-light">
-              <a className="navbar-brand" title="MINTY! (of course, you know -- Men + Tea}" href="#">(<AiOutlineMan /><AiOutlineMan />) + <GiTeapotLeaves /></a>
+              <a className="navbar-brand" title="MINTY! (you know...Men + Tea.  You get it, right?}" href="#">(<AiOutlineMan /><AiOutlineMan />) + <GiTeapotLeaves /></a>
               <div className="navbar-collapse collapse">
                 <ul className="navbar-nav mr-auto">
                   <li className="nav-item"><Link className="nav-link" to="/">Summary</Link></li>

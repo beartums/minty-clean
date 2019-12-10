@@ -27,6 +27,6 @@ class Api::V1::CategoryGroupsController < ApplicationController
 
   private 
     def category_group_params
-      params.require(:category_group).permit(:name)
+      params.require(:category_group).permit(:name, :configuration_id)
     end 
 end
