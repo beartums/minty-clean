@@ -89,7 +89,7 @@ class CollectionManager {
   }
 
   removeItemFromAllIndices(item, itemObject) {
-    let indices = Object.values(this.indices);
+    let indices = Object.keys(this.indices).map(key => this.indices[key]);
     indices.forEach( index => {
       this.removeItemFromIndex(item, index, itemObject)
     })
@@ -118,7 +118,7 @@ class CollectionManager {
   }
 
   getAllIndices() {
-    return Object.values(this.indices);
+    return Object.keys(this.indices).map(key => this.indices[key]);
   }
   reindex(item, itemId) {
     this.removeItemById(itemId);

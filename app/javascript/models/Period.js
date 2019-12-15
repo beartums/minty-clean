@@ -7,8 +7,8 @@ export default class Period {
   static collection;
   static indices = [
     { name: 'byId', properties: ['id'], isCollection: false},
-
   ]
+  
   rangeType = 'M';
   rangeCount = 1;
   startDate = null;
@@ -18,26 +18,27 @@ export default class Period {
   totalsByCategory = {};
 
   constructor(referenceStartDate, periodOffset, rangeType, rangeCount) {
-    this.rangeType = rangeType || 'M';
+  
+    this.rangeType = rangeType ? rangeType.toUpperCase() : 'M';
     this.rangeCount = rangeCount || 1;
     periodOffset = periodOffset || 0;
     let totalRangeCount = rangeCount * periodOffset;
     let startDate = moment(referenceStartDate).add(totalRangeCount, rangeType);
     this.startDate = startDate.toDate();
-    let endDate = startDate.add(rangeCount, rangeType);
+    let endDate = startDate.add(this.rangeCount, this.rangeType);
     this.endDate = endDate.toDate();
     if (!this.collection) this.createCollection();
     this.collection.push(this);
   }
 
   get id() {
-    this.isoStartDate + '->' + this.isoEndDate;
+    return this.isoStartDate + '->' + this.isoEndDate;
   }
   get isoStartDate() {
-    this.startDate.toISOString().split('T')[0];
+    return this.startDate.toISOString().split('T')[0];
   }
   get isoEndDate() {
-    this.endDate.toISOString().split('T')[0];
+    return this.endDate.toISOString().split('T')[0];
   }
   get collection() {
     return Period.collection;
@@ -96,6 +97,17 @@ export default class Period {
     return categories.reduce( (total, cat) => {
       return total += this.totalsByCategory[cat.name] ? this.totalsByCategory[cat.name] : 0;
     },0);
+  }
+
+  static getPeriodList(startPeriod,isoEndDate) {
+    let period = startPeriod;
+    let periodList = [ startPeriod ];
+    while (period.isoEndDate<isoEndDate) {
+      let nextPeriod = period.getOffsetPeriod(1);
+      periodList.push(nextPeriod);
+      period = nextPeriod;
+    }
+    return periodList;
   }
 
   static getPeriodDiff = (periodA, periodB) => {

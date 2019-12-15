@@ -15,5 +15,6 @@ services:
       - .:/myapp
     ports:
       - "3001:3000"
+      - "9876:9876"
     depends_on:
       - db

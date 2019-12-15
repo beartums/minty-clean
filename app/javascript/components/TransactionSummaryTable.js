@@ -33,7 +33,7 @@ class TransactionSummaryTable extends React.Component {
       firstPeriod: firstPeriod,
       lastPeriod: lastPeriod,
       currentPeriod: currentPeriod,
-      groupSummaries: LSS.getSetting('groupSummaries',{}),
+      groupSummaries: LSS.get('groupSummaries',{}),
       periods: Period.organizeTransactionsIntoPeriods(null,this.props.transactions,firstPeriod)
     }
 
@@ -92,7 +92,7 @@ class TransactionSummaryTable extends React.Component {
     this.setState({
      groupSummaries: summaries
     });
-    LSS.setSetting("groupSummaries",summaries);
+    LSS.set("groupSummaries",summaries);
   }
 
   getCategoriesToSum = () => {

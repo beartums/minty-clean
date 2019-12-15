@@ -1,6 +1,6 @@
 import CollectionManager from './CollectionManager';
 import Configuration from './Configuration';
-import LocalSettingsService from '../services/localSettingsService';
+import * as LocalSettingsService from '../services/localSettingsService';
 
 
 class CategoryGroup {
@@ -49,10 +49,10 @@ class CategoryGroup {
       let clone = _.cloneDeep(group);
       clone.categories.forEach( category => delete category.transactions);
     })
-    LocalSettingsService.setSetting(`config_${name}`, config);
+    LocalSettingsService.set(`config_${name}`, config);
   }
   static loadConfiguration(name) {
-    let config = LocalSettingsService.getSetting(`config_${name}`,[]);
+    let config = LocalSettingsService.get(`config_${name}`,[]);
     config.forEach( group => new CategoryGroup(group));
   }
   

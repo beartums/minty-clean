@@ -5,7 +5,7 @@
     return Settings;
   }
 
-  export function getSetting(key, deflt) {
+  export function get(key, deflt) {
     if (Settings[key]) {
       return JSON.parse(Settings[key]);
     } else {
@@ -13,6 +13,7 @@
     }
   }
 
-  export function setSetting (key, value) {
+  export function set(key, value) {
     Settings[key] = JSON.stringify(value);
   }
+

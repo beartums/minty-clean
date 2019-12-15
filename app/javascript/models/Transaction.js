@@ -10,15 +10,23 @@ class Transaction {
     {name: "byAccount", properties: ['account_name'], isCollection: false},
     {name: "byPeriodAndCategoryGroup", properties: ['periodId','categoryGroupId'], isCollection: false},
     {name: "byAccount", properties: ['account_name'], isCollection: false},
-
   ]
+  static collectionInfo = {
+    maxDate = '',
+    minDate = ''
+  }
   // this passed-in transaction is the object from the ruby JSON
   constructor(transaction) {
     if (!this.collection) this.createCollectionManager()
     Object.keys(transaction).forEach(key => {
       this["_" + key] = transaction[key];
     });
-    this.isoDate = this._date
+    this._isoDate = this._date
+    
+    let info = Transaction.collectionInfo;
+    if (!info.maxDate || info.maxDate < this.date) info.maxDate = this.date;
+    if (!info.minDate || info.minDate > this.date) info.minDate = this.date;
+    
     this.collection.push(this)
   }
   get category() { return this._category }
