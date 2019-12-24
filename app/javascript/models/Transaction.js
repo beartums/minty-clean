@@ -12,8 +12,8 @@ class Transaction {
     {name: "byAccount", properties: ['account_name'], isCollection: false},
   ]
   static collectionInfo = {
-    maxDate = '',
-    minDate = ''
+    maxDate: '',
+    minDate: ''
   }
   // this passed-in transaction is the object from the ruby JSON
   constructor(transaction) {

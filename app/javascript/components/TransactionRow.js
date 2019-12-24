@@ -71,7 +71,7 @@ class TransactionRow extends React.Component {
     }
     if (fieldName == 'date') {
       return (
-        <td key={index}>
+        <td key={index} title={moment(transaction.date).format('ddd, DD MMM, YYYY')}>
           {moment(transaction.date).format(this.props.dateFormat)}
         </td>
       )
