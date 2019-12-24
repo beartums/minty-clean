@@ -88,17 +88,25 @@ class DataService {
     let body = formData;
     return DataService.goFetch(url, "POST", formData, BODY_TYPE.FORM);
   }
+  static getTransactionMinMaxDate() {
+    let url = `${URL.TRANSACTIONS}/minmax`;
+    let body = {};
+    return DataService.goFetch(url, "GET");
+  }
 
   static goFetch = (url, method, body, bodyType) => {
+    
     let request = {
       method: method,
-      headers: {}
     }
     if (bodyType == BODY_TYPE.FORM) {
       request.body = body;
     } else {
       request.body =  JSON.stringify(body);
-      request.headers['Content-Type'] = 'application/json';
+      request.headers = {
+        'Content-Type': 'application/json',
+        'Key-Inflection': 'camel'
+      };
     }
 
     return fetch(url, request);

@@ -43,21 +43,21 @@ class App extends React.Component {
    * @memberof App
    */
   fetchTransactions = () => {
-    return DataService.getTransactions()
-      .then((response) => {return response.json()})
-      .then((transactions) => {
-        let minDate, maxDate, categories = {}, filteredTransactions = [];
+    let minmaxP = DataService.getTransactionMinMaxDate();
+    let transactionsP = DataService.getTransactions()
+    return Promise.all([minmaxP, transactionsP])
+      .then( (values) => {
+        let transactions = values[1], minmax=values[0]
+        let categories = {}, filteredTransactions = [];
         let instanceTransactions = [];
         transactions.forEach( transaction => {
           if (transaction.date < SETTINGS.IGNORE_BEFORE) return;
           instanceTransactions.push(new Transaction(transaction));
-          if (!minDate || transaction.date<minDate) minDate = transaction.date;
-          if (!maxDate || transaction.date>maxDate) maxDate = transaction.date;
           categories[transaction.category] = !categories[transaction.category] ? 1 : categories[transaction.category]+1;
           filteredTransactions.push(transaction);
         })
-        minDate = isoToDate(minDate,'2000-01-01');
-        maxDate = isoToDate(maxDate, '2019-12-31');
+        minDate = isoToDate(minmax.minDate,'2000-01-01');
+        maxDate = isoToDate(minmax.maxDate, '2019-12-31');
 
         this.setState({ 
           transactions: transactions,
@@ -68,7 +68,8 @@ class App extends React.Component {
          }) ;
          console.timeEnd("setup");
          return transactions || [];
-      });
+      })
+
   }
 
   /**

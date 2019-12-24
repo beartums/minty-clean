@@ -25,6 +25,12 @@ class Api::V1::TransactionsController < ApplicationController
       #puts result.to_s
       render :json => {count: result.count, status: :created}
     end
+
+    def minmax
+      min_date = Transaction.minimum(:date)
+      max_date = Transaction.maximum(:date)
+      render :json => { minDate: min_date, maxDate: max_date}
+    end
   
     private
   

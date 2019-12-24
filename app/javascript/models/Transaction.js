@@ -7,9 +7,9 @@ class Transaction {
     {name: "byIsoDate", properties: ['isoDate'], isCollection: false},
     {name: "byYearAndMonth", properties: ['year','month'], isCollection: false},
     {name: "byCategory", properties: ['category'], isCollection: false},
-    {name: "byAccount", properties: ['account_name'], isCollection: false},
+    {name: "byAccount", properties: ['accountName'], isCollection: false},
     {name: "byPeriodAndCategoryGroup", properties: ['periodId','categoryGroupId'], isCollection: false},
-    {name: "byAccount", properties: ['account_name'], isCollection: false},
+    {name: "byAccount", properties: ['accountName'], isCollection: false},
   ]
   static collectionInfo = {
     maxDate: '',
@@ -22,7 +22,7 @@ class Transaction {
       this["_" + key] = transaction[key];
     });
     this._isoDate = this._date
-    
+
     let info = Transaction.collectionInfo;
     if (!info.maxDate || info.maxDate < this.date) info.maxDate = this.date;
     if (!info.minDate || info.minDate > this.date) info.minDate = this.date;
@@ -34,18 +34,18 @@ class Transaction {
   get date() { return this._date }
   get isoDate() { return this._isoDate }
   get description() { return this._description }
-  get originalDescription() { return this._original_description }
-  get accountName() { return this._account_name }
+  get originalDescription() { return this._originalDescription }
+  get accountName() { return this._accountName }
   get notes() { return this._notes }
-  get transactionType() { return this._transaction_type }
+  get transactionType() { return this._transactionType }
   get labels() { return this._labels }
   get amount() { return this._amount }
-  get categoryGroupId() { return this._category_group_id }
+  get categoryGroupId() { return this._categoryGroupId }
   get collection() { return Transaction.collection }
   get periodId() {return this._periodId}
   get signedAmount() {
-    let amount = (this.account_name === 'XXXXX3755' ? -1 : 1) * this.amount;
-    return amount * (this.transaction_type === 'debit' ? -1 : 1);
+    let amount = (this.accountName === 'XXXXX3755' ? -1 : 1) * this.amount;
+    return amount * (this.transactionType === 'debit' ? -1 : 1);
   }
   set isoDate(isoDate) {
     let aDate = this.date.split('-');
@@ -61,7 +61,7 @@ class Transaction {
   }
   set categoryGroup(categoryGroup) { 
     this._categoryGroup = categoryGroup;
-    this._category_group_id = categoryGroup.id;
+    this._categoryGroupId = categoryGroup.id;
     this.collection.reindex(this)
   }
   set period(period) {

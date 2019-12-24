@@ -21,6 +21,9 @@ gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
 
+# convert snake-case to camel case and vice versa in the api
+gem "olive_branch"
+
 #changes for react
 gem 'webpacker'
 gem 'react-rails'

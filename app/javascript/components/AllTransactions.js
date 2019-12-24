@@ -109,7 +109,7 @@ class AllTransactions extends React.Component {
                               transaction={transaction} 
                               optionList={optionList} 
                               changeCategory={this.changeTransactionCategory}
-                              fields={['date','description','amount','edit-button','category','account_name']} />
+                              fields={['date','description','amount','edit-button','category','accountName']} />
               )
             })
           }
