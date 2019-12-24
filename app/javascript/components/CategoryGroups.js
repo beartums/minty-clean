@@ -5,7 +5,7 @@ import TransactionSummaryTable from './TransactionSummaryTable';
 import { getCategories } from '../services/transactionService'
 import $ from 'jquery';
 import PropTypes from 'prop-types';
-import Transaction from './TransactionRow';
+import TransactionRow from './TransactionRow';
 import CategoryGroup from '../models/CategoryGroup'
 
 var GROUP_NAME_DIALOG = {
@@ -334,7 +334,14 @@ class CategoryGroups extends React.Component {
     return (
       <table width="100%" className="table table-condensed table-xs">
         <tbody>
-          { this.state.summaryTransactions.map( t =>  <Transaction key={t.id} transaction={t} /> ) }
+          { this.state.summaryTransactions.map( t =>  {
+            return (
+              <TransactionRow key={t.id} transaction={t} 
+                dateFormat="DD MMM"
+                descriptionWidth="35"
+              /> 
+            )
+          })}
         </tbody>
       </table>
     )
