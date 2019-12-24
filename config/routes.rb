@@ -11,6 +11,7 @@ Rails.application.routes.draw do
       resources :transactions do 
         collection do
           post :import
+          get :minmax
         end
       end
     end

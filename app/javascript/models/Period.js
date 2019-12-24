@@ -8,7 +8,7 @@ export default class Period {
   static indices = [
     { name: 'byId', properties: ['id'], isCollection: false},
   ]
-  
+
   rangeType = 'M';
   rangeCount = 1;
   startDate = null;

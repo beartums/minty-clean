@@ -83,10 +83,10 @@ class TransactionRow extends React.Component {
         </td>
       )
     }
-    if (fieldName == 'account_name') {
+    if (fieldName == 'accountName') {
       return (
         <td key={index}>
-          {transaction.account_name}
+          {transaction.accountName}
         </td>
       )
     }
@@ -127,7 +127,7 @@ TransactionRow.propTypes = {
 }
 
 TransactionRow.defaultProps = {
-  fields: ['date','description','amount','category','account_name'],
+  fields: ['date','description','amount','category','accountName'],
   dateFormat: 'DD MMM YY',
   descriptionWidth: 40
 }

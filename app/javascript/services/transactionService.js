@@ -1,6 +1,6 @@
 export const getSignedAmount = (transaction) => {
-  let amount = (transaction.account_name === 'XXXXX3755' ? -1 : 1) * transaction.amount;
-  return amount * (transaction.transaction_type === 'debit' ? -1 : 1);
+  let amount = (transaction.accountName === 'XXXXX3755' ? -1 : 1) * transaction.amount;
+  return amount * (transaction.transactionType === 'debit' ? -1 : 1);
 
 }
 

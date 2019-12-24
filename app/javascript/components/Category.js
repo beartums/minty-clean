@@ -46,7 +46,7 @@ class Category extends React.Component {
                                       transaction={transaction}
                                       descriptionWidth={30}
                                       dateFormat="DD MMM"
-                                      fields={['date','description','account_name','amount']} />
+                                      fields={['date','description','accountName','amount']} />
                 })}
               </tbody>
             </table>
