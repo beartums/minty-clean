@@ -4,12 +4,11 @@ class Transaction {
   static collection
   static indices = [
     {name: "byId", properties: ['id'], isCollection: false},
-    {name: "byIsoDate", properties: ['isoDate'], isCollection: false},
-    {name: "byYearAndMonth", properties: ['year','month'], isCollection: false},
-    {name: "byCategory", properties: ['category'], isCollection: false},
-    {name: "byAccount", properties: ['accountName'], isCollection: false},
-    {name: "byPeriodAndCategoryGroup", properties: ['periodId','categoryGroupId'], isCollection: false},
-    {name: "byAccount", properties: ['accountName'], isCollection: false},
+    {name: "byIsoDate", properties: ['isoDate'], isCollection: true},
+    {name: "byYearAndMonth", properties: ['year','month'], isCollection: true},
+    {name: "byCategory", properties: ['category'], isCollection: true},
+    {name: "byAccount", properties: ['accountName'], isCollection: true},
+    {name: "byPeriodAndCategoryGroup", properties: ['periodId','categoryGroupId'], isCollection: true},
   ]
   static collectionInfo = {
     maxDate: '',

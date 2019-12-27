@@ -11,13 +11,13 @@ import { FaSearch } from 'react-icons/fa'
 class AllTransactions extends React.Component {
   constructor(props) {
     super(props);
-    let sorter = new Sorter(this.props.transactions);
+    let sorter = new Sorter(this.props.collection.items);
     sorter.addSummary('date',1,SORT.DIRECTION.DESCENDING)
               .addSummary('category',2,SORT.DIRECTION.ASCENDING)
               .addSummary('amount',3,SORT.DIRECTION.ASCENDING)
       
     this.state = {
-      transactions: this.props.transactions, 
+      transactions: this.props.collection.items, 
       DataService: DataService,
       search: null,
       sorter: sorter,
@@ -75,9 +75,10 @@ class AllTransactions extends React.Component {
   }
 
   render() {
-    if (!this.props.transactions) return '';
+    let transactions = this.props.collection.items
+    if (!transactions) return '';
     let optionList = this.getCategoryOptionList();
-    let transactions = this.props.transactions.filter( transaction => {
+    transactions = transactions.filter( transaction => {
       if (!this.state.search || this.state.search.trim() == '') return true;
       let t = transaction;
       let text = this.coalesce(t.description, '') 

@@ -1,12 +1,14 @@
 import React from 'react';
-import Group from './Group'
-import Modal from './Modal';
-import TransactionSummaryTable from './TransactionSummaryTable';
-import { getCategories } from '../services/transactionService'
 import $ from 'jquery';
 import PropTypes from 'prop-types';
+
+import DataService from '../services/dataService';
+import { Settings, KEYS } from '../services/settings';
+
+import TransactionSummaryTable from './TransactionSummaryTable';
 import TransactionRow from './TransactionRow';
-import CategoryGroup from '../models/CategoryGroup'
+import Group from './Group'
+import Modal from './Modal';
 
 var GROUP_NAME_DIALOG = {
   METHODS: {
@@ -21,11 +23,6 @@ var GROUP_DELETE_DIALOG = {
   MODAL_ID: 'groupDeleteModalId'
 }
 
-var LOCAL_SETTINGS = {
-  MIN_DATE: new Date('8/1/2019'),
-  IGNORE_BEFORE_MIN_DATE: false,
-}
-
 class CategoryGroups extends React.Component {
   constructor(props) {
     super(props);
@@ -34,50 +31,17 @@ class CategoryGroups extends React.Component {
     this.state = {
       maxTransactionDate: this.props.maxDate,
       minTransactionDate: this.props.minDate,
-      groups: {},
-      memberships: {},
-      categoryIndex: {},
-      categories: {},
+      groups: this.props.groupCollection.items,
+      memberships: this.props.categoryCollection.items,
+      categoryIndex: this.props.categoryCollection,
+      categories: this.props.categories,
       groupNamePayload: null,
       summaryTransactions: null
     }
-    this.changeGroup = this.changeGroup.bind(this);
-    Promise.all([this.fetchGroups(),this.fetchMemberships()]).then(results => {
-      this.initialize(results[0], results[1]);
-    });
     
   }
 
-  initialize = (groups, memberships, ignoreCategories) => {
-    // takes the longest, so skip it if not needed
-    if (!ignoreCategories) {
-      this.setState({
-        categories: getCategories(this.props.transactions, (LOCAL_SETTINGS.IGNORE_BEFORE_MIN_DATE ? LOCAL_SETTINGS.MIN_DATE : null))
-      });
-    }
-    this.setState({
-      groups: this.buildGroupIndex(groups),
-      memberships: this.buildMembershipIndex(memberships)
-    });
-    this.setState({
-      categoryIndex: this.buildCategoryIndex(this.state.categories)
-    });
-  }
-
-  getDateMinMax = (transactions) => {
-    let minMax = {};
-    transactions.forEach(transaction => {
-      if (!minMax.min || transaction.date<minMax.min) minMax.min = transaction.date;
-      if (!minMax.max || transaction.date>minMax.max) minMax.max = transaction.date;
-    })
-    let dateArray = minMax.min.split('-');
-    minMax.min = new Date(dateArray[0],dateArray[1]-1, dateArray[2]);
-    dateArray = minMax.max.split('-');
-    minMax.max = new Date(dateArray[0],dateArray[1]-1, dateArray[2]);
-    return minMax;
-  }
-
-  changeGroup(categoryName, newGroup, oldGroup) {
+  changeGroup = (categoryName, newGroup, oldGroup) => {
     let newId = newGroup.id, oldId = oldGroup.id;
     
     let categoryMembership = this.state.memberships[categoryName];
@@ -256,60 +220,6 @@ class CategoryGroups extends React.Component {
     })
   }
 
-  fetchGroups = () => {
-    return fetch('/api/v1/category_groups.json')
-      .then((response) => {return response.json()});
-  }
-
-  fetchMemberships = () => {
-    return fetch('/api/v1/category_group_memberships.json')
-      .then((response) => {return response.json()});
-  }
-
-  buildGroupIndex = (groups) => {
-    return groups.reduce( (obj, group) => {
-      obj[group.id] = group;
-      return obj;
-    }, {} )
-  }
-
-  buildMembershipIndex = (memberships) => {
-    return memberships.reduce( (obj, membership) => { 
-      obj[membership.category] = membership;
-      return obj;
-     }, {})
-  }
-
-  buildCategoryIndex = (categories) => {
-    let memberships = this.state.memberships;
-    let groups = this.state.groups;
-    if (!groups || !memberships) return;
-    return Object.values(categories).reduce( (obj, category) => {
-      let membership = memberships[category.name];
-      let group = membership ? groups[membership.category_group_id] : null;
-      let index;
-    
-      if (!membership) {
-        index = '-2';
-      } else if (!group) {
-        index = '-1';
-      } else {
-        index = group.id;
-      }
-
-      if (!obj[index] && group) {
-        obj[index] = {id: group.id, name: group.name, categories: []};
-      }
-      obj[index].categories.push(category)
-
-      return obj;
-
-    }, {
-      '-2': {id: '-2', name: '__Unassigned', categories: []},
-      '-1': {id: '-1', name: '_Assigned; Bad Reference', categories: []}
-    });
-  }
-
   showTransactions = (transactions) => {
     this.setState({summaryTransactions:transactions})
   }
@@ -338,7 +248,7 @@ class CategoryGroups extends React.Component {
             return (
               <TransactionRow key={t.id} transaction={t} 
                 dateFormat="DD MMM"
-                descriptionWidth="35"
+                descriptionWidth={35}
               /> 
             )
           })}
@@ -347,10 +257,10 @@ class CategoryGroups extends React.Component {
     )
   }
   render = () => {
-    let groups = Object.values(this.state.categoryIndex)
+    let groups = Object.values(this.state.groups)
         .sort((a,b) => a.name<b.name ? -1 : 1)
         .filter(group => group.categories.length > 0);
-    let cgs = groups.map( group => new CategoryGroup(group))
+    //let cgs = groups.map( group => new CategoryGroup(group))
 
     return (
       <span>

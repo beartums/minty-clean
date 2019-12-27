@@ -108,6 +108,10 @@ class CollectionManager {
     return this.itemsHash[id];
   }
 
+  get(indexName, keyObject) {
+    return this.getItemByIndex(indexName, keyObject);
+  }
+
   getItemByIndex(indexName,keyObject) {
     let index = this.indices[indexName];
     let key = this.getItemIndexKey(keyObject, index);
@@ -120,6 +124,15 @@ class CollectionManager {
   getAllIndices() {
     return Object.keys(this.indices).map(key => this.indices[key]);
   }
+
+  getKeys(indexName) {
+    let index = this.indices[indexName];
+    if (!index) return [];
+    let items = index.items;
+    if (!items) return [];
+    return Object.keys(items);
+  }
+
   reindex(item, itemId) {
     this.removeItemById(itemId);
     this.push(item)

@@ -1,21 +1,21 @@
 import CollectionManager from './CollectionManager';
+import Category from './Category';
 import Configuration from './Configuration';
 import * as LocalSettingsService from '../services/localSettingsService';
 
 
 class CategoryGroup {
-  static CategoryGroups
+  static collection
   static indices = [
     {name: "byId", properties: 'id', isCollection: false},
     {name: "byName", properties: 'name', isCollection: false},
   ]
 
   constructor(categoryGroup) {
-    if (!CategoryGroup.CategoryGroups) this.createCategoryGroups();
+    if (!CategoryGroup.collection) this.createCollection();
     this._name = categoryGroup.name;
     this._id = categoryGroup.id;
-    this._categories = categoryGroup.categories || []
-    CategoryGroup.CategoryGroups.push(categoryGroup);
+    CategoryGroup.collection.push(this);
   }
 
   set configuration(configuration) {
@@ -37,27 +37,32 @@ class CategoryGroup {
   get name() { return this._name }
   set name(name) { this._name = name; this.reindex(this) }
 
-  get collection() { return CategoryGroup.CategoryGroups }
-
-  createCategoryGroups() {
-    CategoryGroup.CategoryGroups = new CollectionManager('CategoryGroup', 'id', 'CategoryGroups');
-    CategoryGroup.CategoryGroups.addIndices(CategoryGroup.indices);
+  get categories() {
+    if (Category.collection) return Category.collection.get('byGroupId',{groupId:this.id});
+    return []
   }
 
-  static saveConfiguration(name) {
-    let config = this.collection.items.map( group => {
-      let clone = _.cloneDeep(group);
-      clone.categories.forEach( category => delete category.transactions);
-    })
-    LocalSettingsService.set(`config_${name}`, config);
+  get collection() { return CategoryGroup.collection }
+
+  createCollection() {
+    CategoryGroup.collection = new CollectionManager('CategoryGroup', 'id', 'CategoryGroups');
+    CategoryGroup.collection.addIndices(CategoryGroup.indices);
   }
-  static loadConfiguration(name) {
-    let config = LocalSettingsService.get(`config_${name}`,[]);
-    config.forEach( group => new CategoryGroup(group));
-  }
+
+  // static saveConfiguration(name) {
+  //   let config = this.collection.items.map( group => {
+  //     let clone = _.cloneDeep(group);
+  //     clone.categories.forEach( category => delete category.transactions);
+  //   })
+  //   LocalSettingsService.set(`config_${name}`, config);
+  // }
+  // static loadConfiguration(name) {
+  //   let config = LocalSettingsService.get(`config_${name}`,[]);
+  //   config.forEach( group => new CategoryGroup(group));
+  // }
   
   reindex(item) {
-    CategoryGroup.CategoryGroups.reindex(this)
+    CategoryGroup.collection.reindex(this)
   }
 }
 

@@ -38,7 +38,7 @@ class DataService {
 
   static getGroups() {
     let url = `${URL.GROUPS}`;
-    return DataService.goFetch(url, "GET", {});
+    return DataService.goFetch(url, "GET");
   }
 
   static deleteGroup(group) {
@@ -66,8 +66,9 @@ class DataService {
 
   }
 
-  static getmemberships() {
-
+  static getMemberships() {
+    let url = `${URL.MEMBERSHIPS}`;
+    return DataService.goFetch(url, "GET");
   }
 
   static updateTransaction = (transaction, newValues) => {
@@ -109,7 +110,8 @@ class DataService {
       };
     }
 
-    return fetch(url, request);
+    return fetch(url, request).then(response => response.json());
+
   }
 
 }

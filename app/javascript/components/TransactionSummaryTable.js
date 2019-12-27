@@ -4,36 +4,36 @@ import TransactionSummaryHeader from './TransactionSummaryHeader';
 import { FaChevronLeft, FaChevronRight, FaBackward, FaForward, FaStepBackward, FaStepForward } from 'react-icons/fa';
 import * as numeral from 'numeral';
 import Period from '../models/Period';
-import * as LSS from '../services/localSettingsService';
-
-
-var GLOBAL_SETTINGS = {
-  START_DATE: new Date(2019,7,1), // August 6 2019,
-  PERIOD_RANGE_TYPE: 'M',
-  PERIOD_RANGE_COUNT: 1,
-  PERIOD_COUNT: 3,
-}
+import { Settings, KEYS } from '../services/settings';
 
 class TransactionSummaryTable extends React.Component {
   constructor(props) {
     super(props);
-    let currentPeriod = new Period(GLOBAL_SETTINGS.START_DATE);
+    let currentPeriod;
+    currentPeriod = Settings.get(KEYS.PERIODS.FIRST_PERIOD).getOffsetPeriod(0);
     let firstPeriod = this.getExtremePeriod('min', currentPeriod);
     let lastPeriod = this.getExtremePeriod('max', currentPeriod);
 
-    let lastPeriodShown = new Period(currentPeriod.startDate,
-      GLOBAL_SETTINGS.PERIOD_COUNT-1,
+    let sd = currentPeriod.startDate;
+    let count = Settings.get(KEYS.DISPLAY.PERIOD_COUNT);
+    let lastPeriodShown = new Period(sd,
+      count-1,
       currentPeriod.rangeType,
       currentPeriod.rangeCount);
 
     this.state = {
-      SETTINGS: GLOBAL_SETTINGS,
+      SETTINGS: {
+        START_DATE: Settings.get(KEYS.PERIODS.FIRST_PERIOD).startDate,
+        PERIOD_RANGE_TYPE: Settings.get(KEYS.PERIODS.RANGE_TYPE),
+        PERIOD_RANGE_COUNT: Settings.get(KEYS.PERIODS.RANGE_LENGTH),
+        PERIOD_COUNT: Settings.get(KEYS.DISPLAY.PERIOD_COUNT),
+      },
       periodsBeforeFirst: Period.getPeriodDiff(firstPeriod, currentPeriod),
       periodsAfterLast: Period.getPeriodDiff(lastPeriodShown, lastPeriod),
       firstPeriod: firstPeriod,
       lastPeriod: lastPeriod,
       currentPeriod: currentPeriod,
-      groupSummaries: LSS.get('groupSummaries',{}),
+      groupSummaries: Settings.get(KEYS.GROUPS.TO_SUM,{}),
       periods: Period.organizeTransactionsIntoPeriods(null,this.props.transactions,firstPeriod)
     }
 
@@ -61,7 +61,7 @@ class TransactionSummaryTable extends React.Component {
     let period;
     if (delta === Number.MAX_SAFE_INTEGER) {
       period = this.state.lastPeriod;
-      period = period.getOffsetPeriod(-1 * this.state.SETTINGS.PERIOD_COUNT + 1);
+      period = period.getOffsetPeriod(-1 * Settings.get(KEYS.DISPLAY.PERIOD_COUNT) + 1);
     } else if (delta === Number.MIN_SAFE_INTEGER) {
       period = this.state.firstPeriod;
     } else {
@@ -92,7 +92,7 @@ class TransactionSummaryTable extends React.Component {
     this.setState({
      groupSummaries: summaries
     });
-    LSS.set("groupSummaries",summaries);
+    Settings.set(KEYS.GROUPS.TO_SUM, summaries);
   }
 
   getCategoriesToSum = () => {
@@ -108,7 +108,7 @@ class TransactionSummaryTable extends React.Component {
     let keys = Object.keys(periods).sort();
     let idx = keys.indexOf(this.state.currentPeriod.startDate.toISOString())
     let periodsToShow = [];
-    for (let i = idx; i < idx + GLOBAL_SETTINGS.PERIOD_COUNT; i++) {
+    for (let i = idx; i < idx + this.state.SETTINGS.PERIOD_COUNT; i++) {
       periodsToShow.push(periods[keys[i]]);
     }
     return periodsToShow;
@@ -116,7 +116,7 @@ class TransactionSummaryTable extends React.Component {
 
   render() {
     let periods = this.getPeriodsToShow();
-    let numPeriodsToShow = GLOBAL_SETTINGS.PERIOD_COUNT;
+    let numPeriodsToShow = this.state.SETTINGS.PERIOD_COUNT;
     let catsToSummarize = this.getCategoriesToSum();
 
     return(

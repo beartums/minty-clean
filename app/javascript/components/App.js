@@ -1,15 +1,20 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
-import moment from 'moment';
+
 import Transaction from '../models/Transaction';
+import CategoryGroup from '../models/CategoryGroup';
+import Category from '../models/Category';
+
 import DataService from '../services/dataService';
 import {isoToDate} from '../services/dateService';
-import LocalSettingsService from '../services/localSettingsService';
-import SETTINGS from '../services/settings';
+import {Settings, KEYS} from '../services/settings';
+
 import CategoryGroups from './CategoryGroups';
 import AllTransactions from './AllTransactions';
+
 import { AiOutlineMan } from 'react-icons/ai';
-import { GiTeapotLeaves } from 'react-icons/gi'
+import { GiTeapotLeaves } from 'react-icons/gi';
+import * as _ from 'lodash';
 
 /**
  * Router Component for application
@@ -23,8 +28,7 @@ class App extends React.Component {
     console.time('setup')
     super(props);
     this.state = {
-      isLoading: true,
-      transactionManager: Transaction.collection
+      isLoading: true
     }
   }
 
@@ -43,28 +47,50 @@ class App extends React.Component {
    * @memberof App
    */
   fetchTransactions = () => {
+
     let minmaxP = DataService.getTransactionMinMaxDate();
-    let transactionsP = DataService.getTransactions()
-    return Promise.all([minmaxP, transactionsP])
-      .then( (values) => {
-        let transactions = values[1], minmax=values[0]
-        let categories = {}, filteredTransactions = [];
-        let instanceTransactions = [];
+    let transactionsP = DataService.getTransactions();
+    let groupsP = DataService.getGroups();
+    let membershipsP = DataService.getMemberships();
+
+    return Promise.all([groupsP, membershipsP, minmaxP, transactionsP])
+      .then( ([groups, memberships, minmax, transactions]) => {
+        // groups
+        groups.forEach( group => {
+          new CategoryGroup(group);
+        });
+
+        // // memberships
+        memberships.forEach( membership => {
+          new Category(membership);
+        })
+
+        // // Transactions
+        let filteredTransactions = [];
         transactions.forEach( transaction => {
-          if (transaction.date < SETTINGS.IGNORE_BEFORE) return;
-          instanceTransactions.push(new Transaction(transaction));
-          categories[transaction.category] = !categories[transaction.category] ? 1 : categories[transaction.category]+1;
+          new Transaction(transaction);
+          if (transaction.date < Settings.get(KEYS.PERIODS.FIRST_PERIOD).isoStartDate) return;
           filteredTransactions.push(transaction);
         })
-        minDate = isoToDate(minmax.minDate,'2000-01-01');
-        maxDate = isoToDate(minmax.maxDate, '2019-12-31');
+
+        // // Date minmax
+        const minDate = isoToDate(minmax.minDate,'2000-01-01');
+        const maxDate = isoToDate(minmax.maxDate, '2019-12-31');
+
+        let catKeys = Category.collection.getKeys('byName');
+        let transCats = Transaction.collection.getKeys('byCategory')
+
+        let categories = _.union(catKeys, transCats);
 
         this.setState({ 
           transactions: transactions,
+          transactionCollection: Transaction.collection,
+          groupCollection: CategoryGroup.collection,
+          categoryCollection: Category.collection,
+          categories: categories.sort(),
           filteredTransactions: filteredTransactions,
           minDate: minDate,
           maxDate: maxDate,
-          categories: Object.keys(categories).sort()
          }) ;
          console.timeEnd("setup");
          return transactions || [];
@@ -90,6 +116,7 @@ class App extends React.Component {
 
   render() {
     return (
+      // <div></div>
       this.state.isLoading ? (
           <div className="spinner-border spinner-border-xl text-center" role="status">
             <span className="sr-only">Loading...</span>
@@ -108,7 +135,7 @@ class App extends React.Component {
             </nav>
             <Switch>
               <Route path="/details">
-                <AllTransactions transactions={this.state.transactions} 
+                <AllTransactions collection={this.state.transactionCollection}
                                   categories={this.state.categories}
                                   uploadTransactions={this.handleUploadButtonClick} />
               </Route>
@@ -117,6 +144,10 @@ class App extends React.Component {
               </Route>
               <Route path="/">
                 <CategoryGroups transactions={this.state.filteredTransactions} 
+                                  transactionCollection={this.state.transactionCollection}
+                                  groupCollection = {this.state.groupCollection}
+                                  categoryCollection = {this.state.categoryCollection}
+                                  categories = { this.state.categories }
                                   minDate={this.state.minDate} 
                                   maxDate={this.state.maxDate} />
               </Route>

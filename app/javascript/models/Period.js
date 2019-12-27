@@ -19,6 +19,9 @@ export default class Period {
 
   constructor(referenceStartDate, periodOffset, rangeType, rangeCount) {
   
+    referenceStartDate = typeof(referenceStartDate) == 'String' 
+        ? Period.isoToDate(referenceStartDate)
+        : referenceStartDate;
     this.rangeType = rangeType ? rangeType.toUpperCase() : 'M';
     this.rangeCount = rangeCount || 1;
     periodOffset = periodOffset || 0;
