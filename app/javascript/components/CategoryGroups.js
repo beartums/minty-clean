@@ -9,6 +9,7 @@ import TransactionSummaryTable from './TransactionSummaryTable';
 import TransactionRow from './TransactionRow';
 import Group from './Group'
 import Modal from './Modal';
+import Category from '../models/Category';
 
 var GROUP_NAME_DIALOG = {
   METHODS: {
@@ -44,54 +45,19 @@ class CategoryGroups extends React.Component {
   changeGroup = (categoryName, newGroup, oldGroup) => {
     let newId = newGroup.id, oldId = oldGroup.id;
     
-    let categoryMembership = this.state.memberships[categoryName];
-    let url, method
-    if (!categoryMembership) {
-      url = 'api/v1/category_group_memberships';
-      method = 'POST';
-    } else {
-      url = 'api/v1/category_group_memberships/' + categoryMembership.id;
-      method = 'PATCH'
-    }
-    categoryMembership = {
-      category: categoryName,
-      category_group_id: newId
-    }
-    fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({'category_group_membership': categoryMembership})
-    }).then( result => {
-      if (result.status !== 200) throw new Error(result.msg);
-      return result.json();
-    }).catch( e => console.log(e))
+    let category = this.props.categoryCollection.get('byName', {name: categoryName});
+    if (!category) category = {category: categoryName, categoryGroupId: newId}
+
+    DataService.upsertCategory(category, newId)
+      .catch( e => console.log(e))
       .then( result => {
-      let categoryIndex = this.state.categoryIndex;
-      // remove from current group
-      let currentGroup = categoryIndex[oldId];
-      let category;
-      if (currentGroup) {
-        category = currentGroup.categories.find( category => category.name === categoryName);
-        if (category) {
-          let idx = currentGroup.categories.indexOf(category);
-          currentGroup.categories.splice(idx,1)
+        if (category.id) {
+          category.groupId = newId;
+        } else {
+          new Category(result);
         }
-      }
-      // add to new group
-      let futureGroup = categoryIndex[newId];
-      if (!futureGroup) {
-        futureGroup = {
-          id: newId,
-          name: this.state.groups[newId].name,
-          categories: []
-        }
-        categoryIndex[newId] = futureGroup
-      }
-      futureGroup.categories.push(category);
-      this.setState({categoryIndex: categoryIndex})
-    })
+        this.setState( { categoryIndex: Category.collection })
+      })
   }
 
   showCreateNewGroupModal = (categoryName, oldGroup) => {
@@ -236,7 +202,8 @@ class CategoryGroups extends React.Component {
                                         deleteGroup={this.showDeleteGroupModal}
                                         renameGroup={this.showRenameGroupModal}
                                         group={group} 
-                                        groups={Object.values(this.state.groups)} />) 
+                                        groupCollection={this.props.groupCollection}
+                                        transactionCollection={this.props.transactionCollection} />) 
     )
   }
 

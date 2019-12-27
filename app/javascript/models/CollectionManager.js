@@ -35,13 +35,13 @@ class CollectionManager {
   }
 
   removeItemById(itemId) {
-    let item = this.itemsHash[itemId]
+    let item = this.clonesHash[itemId]
     if (item) {
       this.removeItemFromAllIndices(item,itemId)
       delete this.itemsHash[itemId];
       delete this.clonesHash[itemId];
-      let idx = this.items.indexOf(item);
-      if (idx) this.items.splice(idx,1);
+      let idx = this.getIndexOfByItemIdProp(this.items, item);
+      if (idx >= 0) this.items.splice(idx,1);
     }
   }
 
@@ -79,19 +79,27 @@ class CollectionManager {
     })
   }
 
-  removeItemFromIndex(item, index, itemObject) {
-    let key = this.getItemIndexKey(item,index);
+  removeItemFromIndex(item, index, itemId) {
+    let key = this.getItemIndexKey(item, index);
     if (!index.isCollection) {
       delete index.items[key];
     } else {
-      index.items.splice(index.items[key].indexOf(itemObject),1)
+      let idx = this.getIndexOfByItemIdProp(index.items[key], item);
+      if (idx >= 0 ) index.items[key].splice(idx, 1);
     }
   }
 
-  removeItemFromAllIndices(item, itemObject) {
+  getIndexOfByItemIdProp(array, item) {
+    if (!item || !array || !array.length) return -1;
+    let id = item[this.itemIdProp];
+    let foundItem = array.find( el => el[this.itemIdProp]==id );
+    return !foundItem ? -1 : array.indexOf(foundItem); 
+  }
+
+  removeItemFromAllIndices(item, itemId) {
     let indices = Object.keys(this.indices).map(key => this.indices[key]);
     indices.forEach( index => {
-      this.removeItemFromIndex(item, index, itemObject)
+      this.removeItemFromIndex(item, index, itemId)
     })
   }
 
@@ -134,6 +142,7 @@ class CollectionManager {
   }
 
   reindex(item, itemId) {
+    itemId = itemId || item[this.itemIdProp];
     this.removeItemById(itemId);
     this.push(item)
   }

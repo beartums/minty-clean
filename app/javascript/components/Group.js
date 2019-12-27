@@ -44,8 +44,10 @@ class Group extends React.Component {
                  return (
                     <Category key={category.name} category={category} 
                               createNewGroup={this.props.createNewGroup}
-                              groups={this.props.groups} changeGroup={this.props.changeGroup} 
-                              parentGroup={this.props.group}/> 
+                              groups={this.props.groupCollection} changeGroup={this.props.changeGroup} 
+                              parentGroup={this.props.group}
+                              groupCollection={this.props.groupCollection}
+                              transactionCollection={this.props.transactionCollection}/> 
                  )
                 })
               }

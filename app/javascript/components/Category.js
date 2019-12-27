@@ -4,7 +4,6 @@ import ChangeGroupDropdownItem from './ChangeGroupDropdownItem';
 
 class Category extends React.Component {
   constructor(props) {
-    // category, changeGroup (function), groups, parentGroup
     super(props);
     this.state = {
       showTransactions: false,
@@ -17,7 +16,7 @@ class Category extends React.Component {
   render() {
     return (
       <div className="indent" key={this.props.category.name}>
-        {this.props.category.name} ({this.props.category.transactions.length})
+        {this.props.category.name} ({this.props.transactionCollection.get('byCategory',this.props.category).length})
         &nbsp;
         <button className="btn btn-xs btn-hover" 
                 onClick={() => this.setState({showTransactions: !this.state.showTransactions})}>
@@ -30,7 +29,8 @@ class Category extends React.Component {
         <div className="dropdown-menu">
           <ChangeGroupDropdownItem key="__NewGroup" handleClick={this.createNewGroup} group={{id:'__newGroup', name: '<New>'}}
                                         categoryName={this.props.category.name} parentGroup={this.props.parentGroup} />
-          { this.props.groups.map( (group,idx) => {
+          { this.props.groupCollection.items.sort( (a,b) => a.name < b.name ? -1 : 1 )
+            .map( (group,idx) => {
             return (
               <ChangeGroupDropdownItem key={idx} handleClick={this.props.changeGroup} 
                             group={group} categoryName={this.props.category.name} parentGroup={this.props.parentGroup} />
@@ -41,12 +41,12 @@ class Category extends React.Component {
           <div className="indent">
             <table className="table table-condensed table-xs">
               <tbody>
-                {this.props.category.transactions.map( transaction => {
+                {this.props.transactionCollection.get('byCategory', this.props.category).map( transaction => {
                   return <TransactionRow key={transaction.id} 
                                       transaction={transaction}
                                       descriptionWidth={30}
                                       dateFormat="DD MMM"
-                                      fields={['date','description','accountName','amount']} />
+                                      fields={['date', 'description', 'accountName', 'amount']} />
                 })}
               </tbody>
             </table>

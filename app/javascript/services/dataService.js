@@ -48,14 +48,23 @@ class DataService {
     return DataService.goFetch(url, "DELETE", body);
   }
 
-  static updateMembership(oldMembership, groupId) {
-    let membershipId = oldMembership.id || oldMembership;
-    let url = `${URL.MEMBERSHIPS}/${membershipId}`;
-    let body = {};
-    body[ENTITIES.MEMBERSHIP] = {
-      category_group_id: groupId
+  static upsertCategory(oldCategory, newGroupId) {
+    let method, body = {};
+    let url = `${URL.MEMBERSHIPS}`;
+    let sendingCategory = {
+      categoryGroupId: newGroupId,
+      category: oldCategory.category
     }
-    return DataService.goFetch(url, "PATCH", body);
+
+    if (oldCategory.id) {
+      method = 'PATCH';
+      url += '/' + oldCategory.id
+    } else {
+      method = 'POST';
+    }
+    body[ENTITIES.MEMBERSHIP] = sendingCategory;
+
+    return DataService.goFetch(url, method, body);
   }
 
   static createMembership(membership) {
@@ -110,7 +119,10 @@ class DataService {
       };
     }
 
-    return fetch(url, request).then(response => response.json());
+    return fetch(url, request).then(response => {
+      if (response.status !== 200) throw new Error(response);
+      return response.json()
+    });
 
   }
 

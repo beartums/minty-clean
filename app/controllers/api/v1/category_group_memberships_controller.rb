@@ -10,8 +10,8 @@ module Api
       end
 
       def update
-        category_group_membership = CategoryGroupMembership.find(category: params[:category])
-        category_group_membership = CategoryGroupMembership.update_atttributes(category_group_membership_params)
+        category_group_membership = CategoryGroupMembership.find(params[:id])
+        category_group_membership = category_group_membership.update_attributes(category_group_membership_params)
         render json: category_group_membership
       end
 
@@ -24,7 +24,7 @@ module Api
 
       private
         def category_group_membership_params
-          params.require(:category_group_membership).permit(:category, :category_group_id)
+          params.require(:category_group_membership).permit(:id, :category, :category_group_id)
         end
     end
   end 

@@ -41,8 +41,11 @@ class Category {
 
   get groupId() { return this._groupId }
   set groupId(id) {
-    this._groupId = id; this.reindex(this)
+    this._groupId = id; this.reindex(this);
   }
+
+  get category() { return this._name }
+  get categoryGroupId() { return this._groupId }
 
   get collection() { return Category.collection }
  
@@ -51,8 +54,8 @@ class Category {
     Category.collection.addIndices(Category.indices);
   }
 
-  reindex(item) {
-    Category.collection.reindex(item)
+  reindex(item, originalId) {
+    Category.collection.reindex(item, originalId)
   }
 }
 

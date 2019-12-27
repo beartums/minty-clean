@@ -38,8 +38,8 @@ class CategoryGroup {
   set name(name) { this._name = name; this.reindex(this) }
 
   get categories() {
-    if (Category.collection) return Category.collection.get('byGroupId',{groupId:this.id});
-    return []
+    let cats = Category.collection ? Category.collection.get('byGroupId',{groupId:this.id}) : [];
+    return cats || [];
   }
 
   get collection() { return CategoryGroup.collection }
