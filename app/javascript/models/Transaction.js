@@ -20,7 +20,7 @@ class Transaction {
     Object.keys(transaction).forEach(key => {
       this["_" + key] = transaction[key];
     });
-    this._isoDate = this._date
+    this.isoDate = this._date
 
     let info = Transaction.collectionInfo;
     if (!info.maxDate || info.maxDate < this.date) info.maxDate = this.date;
@@ -47,12 +47,12 @@ class Transaction {
     return amount * (this.transactionType === 'debit' ? -1 : 1);
   }
   set isoDate(isoDate) {
-    let aDate = this.date.split('-');
+    let aDate = isoDate.split('-');
     this._month = aDate[1]-1;
     this._year = aDate[0];
     this._day = aDate[2];
     this._isoDate = this.date;
-    this._date = new Date(this.year,this.month,this.day);
+    this._date = new Date(this._year,this._month,this._day);
   }
   set category(categoryName) {
     this._category = categoryName

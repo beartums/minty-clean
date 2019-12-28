@@ -49,6 +49,18 @@ class Category {
 
   get collection() { return Category.collection }
  
+  getGroupName(groupHashById) {
+    let group = groupHashById[this.groupId];
+    if (group) return group.name;
+    if (this.groupId===0 || this.groupId) return '__Invalid Group Id Reference';
+    return '__Unassigned'
+  }
+  isUnassigned(groupHashById) {
+    let group = groupHashById[this.groupId];
+    if (group) return false;
+    return true;
+  }
+
   createCollection() {
     Category.collection = new CollectionManager('Category', 'id', 'Categories');
     Category.collection.addIndices(Category.indices);

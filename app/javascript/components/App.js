@@ -59,6 +59,7 @@ class App extends React.Component {
         groups.forEach( group => {
           new CategoryGroup(group);
         });
+        new CategoryGroup({id: -2, name: 'UNCATEGORIZED'})
 
         // // memberships
         memberships.forEach( membership => {

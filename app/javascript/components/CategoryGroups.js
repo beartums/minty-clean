@@ -1,6 +1,7 @@
 import React from 'react';
 import $ from 'jquery';
 import PropTypes from 'prop-types';
+import * as _ from 'lodash';
 
 import DataService from '../services/dataService';
 import { Settings, KEYS } from '../services/settings';
@@ -9,7 +10,10 @@ import TransactionSummaryTable from './TransactionSummaryTable';
 import TransactionRow from './TransactionRow';
 import Group from './Group'
 import Modal from './Modal';
+
+import Transaction  from '../models/Transaction';
 import Category from '../models/Category';
+import CategoryGroup from '../models/CategoryGroup';
 
 var GROUP_NAME_DIALOG = {
   METHODS: {
@@ -120,17 +124,9 @@ class CategoryGroups extends React.Component {
           return result.json()
         })
         .then(result => {
-          let groupId = oldGroup.id
-          let groups = this.state.groups;
-          let categoryIndex = this.state.categoryIndex;
-          
-          groups[groupId].name = groupName;
-          categoryIndex[groupId].name = groupName;
+          oldGroup.name = groupName
 
-          this.setState({
-            groups: groups,
-            categoryIndex: categoryIndex
-          })
+          this.setState({ groups: this.state.groups });
         });
     } else {
       promise = this.saveNewGroup(groupName)
@@ -139,11 +135,9 @@ class CategoryGroups extends React.Component {
           return result.json()
         })
         .then(result => {
-          let group = { id: result.id, name: result.name};
-          let groups = this.state.groups;
-      
-          groups[group.id] = group
-          this.setState({groups: groups});
+          let group = new CategoryGroup({ id: result.id, name: result.name});
+
+          this.setState({groups: this.state.groups});
           this.changeGroup(categoryName, group, oldGroup);  
         });
     }
@@ -164,19 +158,15 @@ class CategoryGroups extends React.Component {
     });
   }
 
-  dropGroup = (group,newGroup) => {
-    newGroup = newGroup || this.state.categoryIndex['-2'];
-    newGroup.categories = newGroup.categories.concat(group.categories);
-    newGroup.categories.sort((a,b) => {a<b ? -1 : 1});
-    let groups = this.state.groups;
-    delete groups[group.id];
-    let categoryIndex = this.state.categoryIndex
-    delete categoryIndex[group.id]
-    this.setState({groups: groups, categoryIndex: categoryIndex});
+  dropGroup = (group) => {
+    let cats = Category.collection.get('byGroupId', {groupId: group.id})
+    cats.forEach( cat => cat.collection.remove(cat));
+    if (group.id >= 0) CategoryGroup.collection.remove(group);
+    this.setState({ groups: this.state.groups });
   }
 
-  deleteGroup = group => {
-    group = group || this.state.groupToDelete;
+  deleteGroup = () => {
+    let group = this.state.groupToDelete;
     fetch(`/api/v1/category_groups/${group.id}`, {
       method: 'DELETE'
     }).then(result => {
@@ -195,15 +185,17 @@ class CategoryGroups extends React.Component {
   }
 
   getGroupListDiv = (groups) => {
-    return (
-      groups.map( group => <Group key={group.name} 
+    return ( 
+          groups.filter( group => group.categories.length > 0)
+                .map( group => <Group key={group.name} 
                                         createNewGroup={this.showCreateNewGroupModal}
                                         changeGroup={this.changeGroup}
                                         deleteGroup={this.showDeleteGroupModal}
                                         renameGroup={this.showRenameGroupModal}
                                         group={group} 
                                         groupCollection={this.props.groupCollection}
-                                        transactionCollection={this.props.transactionCollection} />) 
+                                        transactionCollection={this.props.transactionCollection} />
+          )
     )
   }
 

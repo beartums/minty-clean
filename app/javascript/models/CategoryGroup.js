@@ -1,7 +1,8 @@
 import CollectionManager from './CollectionManager';
 import Category from './Category';
+import Transaction from './Transaction';
 import Configuration from './Configuration';
-import * as LocalSettingsService from '../services/localSettingsService';
+import {Settings, KEYS} from '../services/settings'
 
 
 class CategoryGroup {
@@ -38,11 +39,24 @@ class CategoryGroup {
   set name(name) { this._name = name; this.reindex(this) }
 
   get categories() {
+    if (this._id < 0) return this.getUngroupedCategories();
     let cats = Category.collection ? Category.collection.get('byGroupId',{groupId:this.id}) : [];
     return cats || [];
   }
 
   get collection() { return CategoryGroup.collection }
+
+  getUngroupedCategories() {
+    let startDate = Settings.get(KEYS.PERIODS.FIRST_PERIOD).startDate;
+    let transCats = Transaction.collection.getKeys('byCategory');
+    transCats = transCats.filter( cat => {
+      let transactions = Transaction.collection.get('byCategory', {category: cat})
+      return transactions.some( trans => trans.date >= startDate)
+    })
+    let groupCats = Category.collection.getKeys('byName');
+    let cats = _.difference(transCats, groupCats).map(cat => { return {name: cat} } );
+    return cats || [];
+  }
 
   createCollection() {
     CategoryGroup.collection = new CollectionManager('CategoryGroup', 'id', 'CategoryGroups');

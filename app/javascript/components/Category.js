@@ -16,7 +16,8 @@ class Category extends React.Component {
   render() {
     return (
       <div className="indent" key={this.props.category.name}>
-        {this.props.category.name} ({this.props.transactionCollection.get('byCategory',this.props.category).length})
+        {this.props.category.name} 
+          ({this.props.transactionCollection.get('byCategory',{category:this.props.category.name}).length})
         &nbsp;
         <button className="btn btn-xs btn-hover" 
                 onClick={() => this.setState({showTransactions: !this.state.showTransactions})}>
