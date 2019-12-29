@@ -1,99 +1,98 @@
+/* eslint-disable react/require-default-props */
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
 import React from 'react';
-import { getSignedAmount } from '../services/transactionService';
 import * as numeral from 'numeral';
 import PropTypes from 'prop-types';
-import Period from '../models/Period';
-import moment from 'moment';
+
+import Category from '../models/Category';
+import Transaction from '../models/Transaction';
 
 class TransactionSummaryRow extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
-      isSummarized: this.props.isSummarized
-    }
+      isSummarized: this.props.isSummarized,
+    };
   }
 
   getDateFromIsoString = (isoDate) => {
-    let dateArray = isoDate.split('-');
-    return new Date(dateArray[0], dateArray[1]-1, dateArray[2])
+    const dateArray = isoDate.split('-');
+    return new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
   }
 
-  getPeriodTotals = (categories, periods) => {
-
-    let amountArray = new Array(periods.length).fill(0);
-    categories.forEach(category => {
-      category.transactions.forEach( (transaction) => {
-        //let transDate = this.getDateFromIsoString(transaction.date);
-        //if (periods[0].startDate > transDate || periods[periods.length-1].endDate <= transDate) return;
-        for (let i = 0; i < periods.length; i++) {
-          let period = periods[i];
-          if (period.isInPeriod(transaction.date)) {
-            amountArray[i] += getSignedAmount(transaction);
-            break;
-          }
-        }        
-      });
-    });
-    if (this.props.setFunction && typeof this.props.setTotals == 'function') {
-      this.props.setTotals(amountArray);
-    }
-    return amountArray
-
+  // eslint-disable-next-line arrow-body-style
+  getPeriodTransactions = (period, transactions) => {
+    return transactions.filter((t) => t.date >= period.startDate && t.date < period.endDate);
   }
-  findPeriodIndex = (transaction, periods, currentIndex) => {
-    // periods will be in order from earliest to latest.  It is expected the transactions will be
-    // also, so the best way to find the right one is move relative to the current period
-    currentIndex = currentIndex || 0;
-    let currentPeriod = periods[currentIndex];
-    while (transaction.date < currentPeriod.startDate | transaction.date > currentPeriod.endDate) {
-      if (transaction.date < currentPeriod.startDate) {
-        currentPeriod = periods[--currentIndex]
-      } else {
-        currentPeriod = periods[++currentIndex]
-      }
-      if (!currentPeriod) throw new Error("period not found");
-    }
-    return currentIndex;
+
+  getGroupTransactions = (group) => {
+    const categories = Category.collection.get('byGroupId', { groupId: group.id });
+    // eslint-disable-next-line array-callback-return
+    // eslint-disable-next-line arrow-body-style
+    const transactions = categories.reduce((all, cat) => {
+      return all.concat(Transaction.collection.get('byCategory', { category: cat.name }));
+    }, []);
+    return transactions;
+  }
+
+  getPeriodGroupTransactions = (period, group) => {
+    const t = this.getGroupTransactions(group);
+    const transactions = this.getPeriodTransactions(period, t);
+    return transactions;
+  }
+
+  // eslint-disable-next-line arrow-body-style
+  summarizeTransactions = (transactions) => {
+    return transactions.reduce((total, transaction) => total + transaction.signedAmount, 0);
+  }
+
+  getPeriodSummary = (period, group) => {
+    const total = this.summarizeTransactions(this.getPeriodGroupTransactions(period, group));
+    return total;
   }
 
   toggleSummarized = () => {
-    this.setState({isSummarized: !this.state.isSummarized})
+    this.setState((state) => ({ isSummarized: !state.isSummarized }));
     this.props.toggleSummarized(this.props.group);
-    return;
   }
 
-  showTransactions = (period, categories) => {
-    let trans = categories.reduce( (aggregatedTransactions, category) => {
-      let newTrans = period.transactionsByCategory[category.name] || [];
-      return aggregatedTransactions.concat(newTrans);
-      
-    }, [])
-    this.props.showTransactions(trans.sort((a,b)=>a.date<b.date?-1:1));
+  showTransactions = (period, group) => {
+    const trans = this.getPeriodGroupTransactions(period, group);
+    this.props.showTransactions(trans.sort((a, b) => (a.date < b.date ? -1 : 1)));
   }
 
   hideTransactions = () => {
     this.props.hideTransactions(this.props.group);
   }
+
   render() {
-    //let periodTotals = 
-    // this.getPeriodTotals(this.props.group.categories, this.props.periods);
     return (
       <tr>
-        <td><input type="checkbox" defaultChecked={this.state.isSummarized} onClick={this.toggleSummarized} /></td>
-        <td onClick={this.hideTransactions}>{this.props.group.name}</td>
-        { this.props.periods.map( (period,idx) => {
-            return (
-              <td key={idx} className="text-right" 
-                onClick={() => this.showTransactions(period, this.props.group.categories)}>
-                {numeral(period.getCategorySums(this.props.group.categories)).format('$0.00')}
-              </td>
-            )
-          })
-        }
+        <td>
+          <input
+            type="checkbox"
+            defaultChecked={this.state.isSummarized}
+            onClick={this.toggleSummarized}
+          />
+        </td>
+        <td onClick={this.hideTransactions}>
+          {this.props.group.name}
+        </td>
+        { this.props.periods.map((period, idx) => (
+          <td
+            key={period.startDate}
+            className="text-right"
+            onClick={() => this.showTransactions(period, this.props.group)}
+          >
+            {numeral(this.getPeriodSummary(period, this.props.group, idx)).format('$0.00')}
+          </td>
+        ))}
       </tr>
-    )
-
+    );
   }
 }
 
@@ -107,7 +106,6 @@ TransactionSummaryRow.propTypes = {
   group: PropTypes.shape({
     id: PropTypes.any,
     name: PropTypes.string,
-    categories: PropTypes.array
+    categories: PropTypes.array,
   }),
-  setTotals: PropTypes.func
-}
+};

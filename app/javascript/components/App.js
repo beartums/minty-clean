@@ -4,6 +4,7 @@ import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
 import Transaction from '../models/Transaction';
 import CategoryGroup from '../models/CategoryGroup';
 import Category from '../models/Category';
+import Period from '../models/Period';
 
 import DataService from '../services/dataService';
 import {isoToDate} from '../services/dateService';
@@ -67,12 +68,17 @@ class App extends React.Component {
         })
 
         // // Transactions
+        let firstPeriod = Settings.get(KEYS.PERIODS.FIRST_PERIOD);
+
         let filteredTransactions = [];
         transactions.forEach( transaction => {
           new Transaction(transaction);
-          if (transaction.date < Settings.get(KEYS.PERIODS.FIRST_PERIOD).isoStartDate) return;
+          if (transaction.date < firstPeriod.isoStartDate) return;
           filteredTransactions.push(transaction);
         })
+
+        // periods
+        let periods = Period.getPeriodList(firstPeriod, new Date().toISOString());
 
         // // Date minmax
         const minDate = isoToDate(minmax.minDate,'2000-01-01');
@@ -86,6 +92,7 @@ class App extends React.Component {
         this.setState({ 
           transactions: transactions,
           transactionCollection: Transaction.collection,
+          periods: periods,
           groupCollection: CategoryGroup.collection,
           categoryCollection: Category.collection,
           categories: categories.sort(),
@@ -145,6 +152,7 @@ class App extends React.Component {
               </Route>
               <Route path="/">
                 <CategoryGroups transactions={this.state.filteredTransactions} 
+                                  periods={this.state.periods}
                                   transactionCollection={this.state.transactionCollection}
                                   groupCollection = {this.state.groupCollection}
                                   categoryCollection = {this.state.categoryCollection}
