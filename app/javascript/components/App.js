@@ -1,45 +1,53 @@
-import React, { Component } from 'react';
-import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
+/* eslint-disable react/jsx-one-expression-per-line */
+/* eslint-disable no-console */
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable no-new */
+import React from 'react';
+import {
+  BrowserRouter, Link, Route, Switch,
+} from 'react-router-dom';
+
+import { GiTeapotLeaves } from 'react-icons/gi';
+import * as _ from 'lodash';
+import { AiOutlineMan } from 'react-icons/ai';
 
 import Transaction from '../models/Transaction';
 import CategoryGroup from '../models/CategoryGroup';
 import Category from '../models/Category';
 import Period from '../models/Period';
 
-import DataService from '../services/dataService';
-import {isoToDate} from '../services/dateService';
-import {Settings, KEYS} from '../services/settings';
+import RestClient from '../services/RestClient';
+import { isoToDate } from '../services/dateService';
+import { Settings, KEYS } from '../services/settings';
 
 import CategoryGroups from './CategoryGroups';
 import AllTransactions from './AllTransactions';
 
-import { AiOutlineMan } from 'react-icons/ai';
-import { GiTeapotLeaves } from 'react-icons/gi';
-import * as _ from 'lodash';
 
 /**
  * Router Component for application
  * @class App
- * @param  {any} props React Properties 
+ * @param  {any} props React Properties
  * @extends React.Component
  */
 class App extends React.Component {
-
   constructor(props) {
-    console.time('setup')
+    console.time('setup');
     super(props);
     this.state = {
-      isLoading: true
-    }
+      isLoading: true,
+    };
   }
 
   /**
-   * React hook; called after component has been rendered.  In this case used to load our transactions
+   * React hook; called after component has been rendered.
+   * In this case used to load our transactions
    * @return {void}
    * @memberof App
    */
   componentDidMount() {
-    this.fetchTransactions().then(() => this.setState({isLoading: false}));
+    this.fetchTransactions().then(() => this.setState({ isLoading: false }));
   }
 
   /**
@@ -48,62 +56,59 @@ class App extends React.Component {
    * @memberof App
    */
   fetchTransactions = () => {
-
-    let minmaxP = DataService.getTransactionMinMaxDate();
-    let transactionsP = DataService.getTransactions();
-    let groupsP = DataService.getGroups();
-    let membershipsP = DataService.getMemberships();
+    const minmaxP = RestClient.getTransactionMinMaxDate();
+    const transactionsP = RestClient.getTransactions();
+    const groupsP = RestClient.getGroups();
+    const membershipsP = RestClient.getMemberships();
 
     return Promise.all([groupsP, membershipsP, minmaxP, transactionsP])
-      .then( ([groups, memberships, minmax, transactions]) => {
+      .then(([groups, memberships, minmax, transactions]) => {
         // groups
-        groups.forEach( group => {
+        groups.forEach((group) => {
           new CategoryGroup(group);
         });
-        new CategoryGroup({id: -2, name: 'UNCATEGORIZED'})
+        new CategoryGroup({ id: -2, name: 'UNCATEGORIZED' });
 
         // // memberships
-        memberships.forEach( membership => {
+        memberships.forEach((membership) => {
           new Category(membership);
-        })
+        });
 
         // // Transactions
-        let firstPeriod = Settings.get(KEYS.PERIODS.FIRST_PERIOD);
+        const firstPeriod = Settings.get(KEYS.PERIODS.FIRST_PERIOD);
 
-        let filteredTransactions = [];
-        transactions.forEach( transaction => {
+        const filteredTransactions = [];
+        transactions.forEach((transaction) => {
           new Transaction(transaction);
           if (transaction.date < firstPeriod.isoStartDate) return;
           filteredTransactions.push(transaction);
-        })
+        });
 
         // periods
-        let periods = Period.getPeriodList(firstPeriod, new Date().toISOString());
+        const periods = Period.getPeriodList(firstPeriod, new Date().toISOString());
 
         // // Date minmax
-        const minDate = isoToDate(minmax.minDate,'2000-01-01');
+        const minDate = isoToDate(minmax.minDate, '2000-01-01');
         const maxDate = isoToDate(minmax.maxDate, '2019-12-31');
 
-        let catKeys = Category.collection.getKeys('byName');
-        let transCats = Transaction.collection.getKeys('byCategory')
+        const catKeys = Category.collection.getKeys('byName');
+        const transCats = Transaction.collection.getKeys('byCategory');
 
-        let categories = _.union(catKeys, transCats);
+        const categories = _.union(catKeys, transCats);
 
-        this.setState({ 
-          transactions: transactions,
+        this.setState({
           transactionCollection: Transaction.collection,
-          periods: periods,
+          periods,
           groupCollection: CategoryGroup.collection,
           categoryCollection: Category.collection,
           categories: categories.sort(),
-          filteredTransactions: filteredTransactions,
-          minDate: minDate,
-          maxDate: maxDate,
-         }) ;
-         console.timeEnd("setup");
-         return transactions || [];
-      })
-
+          filteredTransactions,
+          minDate,
+          maxDate,
+        });
+        console.timeEnd('setup');
+        return transactions || [];
+      });
   }
 
   /**
@@ -113,59 +118,67 @@ class App extends React.Component {
    * @memberof App
    */
   handleUploadButtonClick = (e) => {
-    let file = e.target.files[0];
+    const file = e.target.files[0];
 
-    DataService.uploadTransactions(file)
-    .then(response => {
-      console.log(response);
-      this.fetchTransactions();
-    })
+    RestClient.uploadTransactions(file)
+      .then((response) => {
+        console.log(response);
+        this.fetchTransactions();
+      });
   }
 
   render() {
     return (
       // <div></div>
       this.state.isLoading ? (
-          <div className="spinner-border spinner-border-xl text-center" role="status">
-            <span className="sr-only">Loading...</span>
-          </div>
-        ) : (
-          <BrowserRouter>
-            <nav className="navbar navbar-expand-sm  navbar-light bg-light">
-              <a className="navbar-brand" title="MINTY! (you know...Men + Tea.  You get it, right?}" href="#">(<AiOutlineMan /><AiOutlineMan />) + <GiTeapotLeaves /></a>
-              <div className="navbar-collapse collapse">
-                <ul className="navbar-nav mr-auto">
-                  <li className="nav-item"><Link className="nav-link" to="/">Summary</Link></li>
-                  <li className="nav-item"><Link className="nav-link"  to="/details">Details</Link></li>
-                  <li className="nav-item"><Link className="nav-link"  to="/settings">Settings</Link></li>
-                </ul>
-              </div>
-            </nav>
-            <Switch>
-              <Route path="/details">
-                <AllTransactions collection={this.state.transactionCollection}
-                                  categories={this.state.categories}
-                                  uploadTransactions={this.handleUploadButtonClick} />
-              </Route>
-              <Route path="/settings">
-                {/* SETTINGS */}
-              </Route>
-              <Route path="/">
-                <CategoryGroups transactions={this.state.filteredTransactions} 
-                                  periods={this.state.periods}
-                                  transactionCollection={this.state.transactionCollection}
-                                  groupCollection = {this.state.groupCollection}
-                                  categoryCollection = {this.state.categoryCollection}
-                                  categories = { this.state.categories }
-                                  minDate={this.state.minDate} 
-                                  maxDate={this.state.maxDate} />
-              </Route>
-            </Switch>
-          </BrowserRouter>
-        )
-      
-
-    )
+        <div className="spinner-border spinner-border-xl text-center" role="status">
+          <span className="sr-only">Loading...</span>
+        </div>
+      ) : (
+        <BrowserRouter>
+          <nav className="navbar navbar-expand-sm  navbar-light bg-light">
+            <a
+              className="navbar-brand"
+              title="MINTY! (you know...Men + Tea.  You get it, right?}"
+              href="#"
+            >
+                (<AiOutlineMan /><AiOutlineMan />) + <GiTeapotLeaves />
+            </a>
+            <div className="navbar-collapse collapse">
+              <ul className="navbar-nav mr-auto">
+                <li className="nav-item"><Link className="nav-link" to="/">Summary</Link></li>
+                <li className="nav-item"><Link className="nav-link" to="/details">Details</Link></li>
+                <li className="nav-item"><Link className="nav-link" to="/settings">Settings</Link></li>
+              </ul>
+            </div>
+          </nav>
+          <Switch>
+            <Route path="/details">
+              <AllTransactions
+                collection={this.state.transactionCollection}
+                categories={this.state.categories}
+                uploadTransactions={this.handleUploadButtonClick}
+              />
+            </Route>
+            <Route path="/settings">
+              {/* SETTINGS */}
+            </Route>
+            <Route path="/">
+              <CategoryGroups
+                transactions={this.state.filteredTransactions}
+                periods={this.state.periods}
+                transactionCollection={this.state.transactionCollection}
+                groupCollection={this.state.groupCollection}
+                categoryCollection={this.state.categoryCollection}
+                categories={this.state.categories}
+                minDate={this.state.minDate}
+                maxDate={this.state.maxDate}
+              />
+            </Route>
+          </Switch>
+        </BrowserRouter>
+      )
+    );
   }
 }
 

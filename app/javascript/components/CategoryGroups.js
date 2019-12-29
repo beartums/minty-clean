@@ -11,7 +11,7 @@ import $ from 'jquery';
 import PropTypes from 'prop-types';
 // import _ from 'lodash';
 
-import DataService from '../services/dataService';
+import RestClient from '../services/RestClient';
 // import { Settings, KEYS } from '../services/settings';
 
 import TransactionSummaryTable from './TransactionSummaryTable';
@@ -58,7 +58,7 @@ class CategoryGroups extends React.Component {
     let category = this.props.categoryCollection.get('byName', { name: categoryName });
     if (!category) category = { category: categoryName, categoryGroupId: newId };
 
-    DataService.upsertCategory(category, newId)
+    RestClient.upsertCategory(category, newId)
       .catch((e) => console.log(e))
       .then((result) => {
         if (category.id) {
