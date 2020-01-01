@@ -8,7 +8,7 @@ class Transaction {
     { name: 'byIsoDate', properties: ['isoDate'], isCollection: true },
     { name: 'byYearAndMonth', properties: ['year', 'month'], isCollection: true },
     { name: 'byCategory', properties: ['category'], isCollection: true },
-    { name: 'byAccount', properties: ['accountName'], isCollection: true },
+    { name: 'byAccountName', properties: ['accountName'], isCollection: true },
     { name: 'byPeriodAndCategoryGroup', properties: ['periodId', 'categoryGroupId'], isCollection: true },
   ]
 

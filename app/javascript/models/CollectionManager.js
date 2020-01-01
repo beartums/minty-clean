@@ -1,12 +1,17 @@
-import _ from 'lodash'
-import { SORT, Sorter } from './Sorter';
+import _ from 'lodash';
+import { Sorter } from './Sorter';
 
 class CollectionManager {
   items = [];
+
   itemsHash = {};
+
   clonesHash = {};
+
   itemType = '';
+
   itemTypePlural = '';
+
   itemTypeDescription = '';
 
   indices = {};
@@ -18,8 +23,8 @@ class CollectionManager {
   constructor(itemType, itemIdProp, itemTypePlural) {
     this.itemType = itemType;
     this.itemIdProp = itemIdProp;
-    this.itemTypePlural = itemTypePlural || itemType + 's';
-    this.sorter = new Sorter()
+    this.itemTypePlural = itemTypePlural || `${itemType}s`;
+    this.sorter = new Sorter();
   }
 
   push(item) {
@@ -35,38 +40,40 @@ class CollectionManager {
   }
 
   removeItemById(itemId) {
-    let item = this.clonesHash[itemId]
+    const item = this.clonesHash[itemId];
     if (item) {
-      this.removeItemFromAllIndices(item,itemId)
+      this.removeItemFromAllIndices(item, itemId);
       delete this.itemsHash[itemId];
       delete this.clonesHash[itemId];
-      let idx = this.getIndexOfByItemIdProp(this.items, item);
-      if (idx >= 0) this.items.splice(idx,1);
+      const idx = this.getIndexOfByItemIdProp(this.items, item);
+      if (idx >= 0) this.items.splice(idx, 1);
     }
   }
 
   addIndex(name, properties, isCollection) {
-    properties = typeof(properties)=='Array' ? properties : [properties]
+    properties = properties.length === 'Array' ? properties : [properties];
+    // eslint-disable-next-line object-curly-newline
     this.indices[name] = { name, properties, isCollection, items: {} };
     this.addAllItemsToIndex(name);
   }
+
   addIndices(indices) {
-    indices.forEach( index => {
+    indices.forEach((index) => {
       this.addIndex(index.name, index.properties, index.isCollection);
-    })
+    });
   }
 
   addAllItemsToIndex(indexName) {
-    let index = this.indices[indexName];
-    this.items.forEach( item => {
+    const index = this.indices[indexName];
+    this.items.forEach((item) => {
       this.addItemToIndex(item, index);
     });
   }
 
   addItemToIndex(item, index) {
-    let key = this.getItemIndexKey(item, index);
+    const key = this.getItemIndexKey(item, index);
     if (index.isCollection) {
-      if (index.items[key]) index.items[key].push(item)
+      if (index.items[key]) index.items[key].push(item);
       else index.items[key] = [item];
     } else {
       index.items[key] = item;
@@ -74,42 +81,43 @@ class CollectionManager {
   }
 
   addItemToAllIndices(item) {
-    this.getAllIndices().forEach( index => {
-      this.addItemToIndex(item, index)
-    })
+    this.getAllIndices().forEach((index) => {
+      this.addItemToIndex(item, index);
+    });
   }
 
+  // eslint-disable-next-line no-unused-vars
   removeItemFromIndex(item, index, itemId) {
-    let key = this.getItemIndexKey(item, index);
+    const key = this.getItemIndexKey(item, index);
     if (!index.isCollection) {
       delete index.items[key];
     } else {
-      let idx = this.getIndexOfByItemIdProp(index.items[key], item);
-      if (idx >= 0 ) index.items[key].splice(idx, 1);
+      const idx = this.getIndexOfByItemIdProp(index.items[key], item);
+      if (idx >= 0) index.items[key].splice(idx, 1);
     }
   }
 
   getIndexOfByItemIdProp(array, item) {
     if (!item || !array || !array.length) return -1;
-    let id = item[this.itemIdProp];
-    let foundItem = array.find( el => el[this.itemIdProp]==id );
-    return !foundItem ? -1 : array.indexOf(foundItem); 
+    const id = item[this.itemIdProp];
+    const foundItem = array.find((el) => el[this.itemIdProp] === id);
+    return !foundItem ? -1 : array.indexOf(foundItem);
   }
 
   removeItemFromAllIndices(item, itemId) {
-    let indices = Object.keys(this.indices).map(key => this.indices[key]);
-    indices.forEach( index => {
-      this.removeItemFromIndex(item, index, itemId)
-    })
+    const indices = Object.keys(this.indices).map((key) => this.indices[key]);
+    indices.forEach((index) => {
+      this.removeItemFromIndex(item, index, itemId);
+    });
   }
 
   getItemIndexKey(item, index) {
-    let props = index.properties;
-    return props.reduce( (key, prop) => {
+    const props = index.properties;
+    return props.reduce((key, prop) => {
       key += key.length > 0 ? this.delim : '';
       key += item[prop];
       return key;
-    },'')
+    }, '');
   }
 
   getItemById(id) {
@@ -120,23 +128,25 @@ class CollectionManager {
     return this.getItemByIndex(indexName, keyObject);
   }
 
-  getItemByIndex(indexName,keyObject) {
-    let index = this.indices[indexName];
-    let key = this.getItemIndexKey(keyObject, index);
-    return index.items[key];
+  getItemByIndex(indexName, keyObject) {
+    const index = this.indices[indexName];
+    const key = this.getItemIndexKey(keyObject, index);
+    if (index.items[key]) return index.items[key];
+    return index.isCollection ? [] : null;
   }
-  getItemsByIndex(indexName,keyObject) {
-    return this.getItemByIndex(indexName,keyObject);
+
+  getItemsByIndex(indexName, keyObject) {
+    return this.getItemByIndex(indexName, keyObject);
   }
 
   getAllIndices() {
-    return Object.keys(this.indices).map(key => this.indices[key]);
+    return Object.keys(this.indices).map((key) => this.indices[key]);
   }
 
   getKeys(indexName) {
-    let index = this.indices[indexName];
+    const index = this.indices[indexName];
     if (!index) return [];
-    let items = index.items;
+    const { items } = index;
     if (!items) return [];
     return Object.keys(items);
   }
@@ -144,9 +154,8 @@ class CollectionManager {
   reindex(item, itemId) {
     itemId = itemId || item[this.itemIdProp];
     this.removeItemById(itemId);
-    this.push(item)
+    this.push(item);
   }
-
 }
 
 export default CollectionManager;

@@ -1,62 +1,69 @@
-import React from 'react';
-import Category from './Category';
-import { FaCaretRight, FaCaretDown, FaTimes, FaEdit } from 'react-icons/fa'
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+import React, { useState } from 'react';
+import {
+  FaCaretRight, FaCaretDown, FaTimes, FaEdit,
+} from 'react-icons/fa';
 
-const invisible = { visibility: 'hidden'}
-class Group extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showCategories: false
-    }
-  }
+import HoverButton from './HoverButton';
 
-  deleteGroup = () => {
-    this.props.deleteGroup(this.props.group);
-  }
-  renameGroup = () => {
-    this.props.renameGroup(this.props.group);
-  }
+import CategoryItemDiv from './CategoryItemDiv';
 
-  render() {
-    return (
-      <div className="indent">
-        <span style={+this.props.group.id < 0 ? {visibility:'hidden'} : {visibility: 'visible'}}>
-          <a className="hover-button" onClick={this.deleteGroup}>
-            <FaTimes />
-          </a>
-          &nbsp;
-          <a className="hover-button" onClick={this.renameGroup}>
-            <FaEdit />
-          </a>
-          &nbsp;
-        </span>          
-        <a className="hover-button" 
-          onClick={() => this.setState({showCategories: !this.state.showCategories})}>
-          {this.state.showCategories ? <FaCaretDown /> : <FaCaretRight />}
-        </a>
-      { this.props.group.name } ({ this.props.group.categories.length }) 
+const Group = ({
+  group,
+  groupCollection,
+  transactionCollection,
+  changeGroup,
+  createNewGroup,
+  deleteGroup,
+  renameGroup,
+}) => {
+  const [isShowingCategories, setIsShowingCategories] = useState(false);
+
+  const handleDeleteGroup = () => {
+    deleteGroup(group);
+  };
+
+  const handleRenameGroup = () => {
+    renameGroup({ oldGroup: group });
+  };
+
+  return (
+    <div className="indent">
+      <span style={+group.id < 0 ? { visibility: 'hidden' } : { visibility: 'visible' }}>
+        <HoverButton clickHandler={handleDeleteGroup} iconComponent={<FaTimes />} />
         &nbsp;
-        { this.state.showCategories ? (
-            <div className="indent">
-              {
-                this.props.group.categories.map( (category) => {
-                 return (
-                    <Category key={category.name} category={category} 
-                              createNewGroup={this.props.createNewGroup}
-                              groups={this.props.groupCollection} changeGroup={this.props.changeGroup} 
-                              parentGroup={this.props.group}
-                              groupCollection={this.props.groupCollection}
-                              transactionCollection={this.props.transactionCollection}/> 
-                 )
-                })
-              }
-            </div>
-          ) : ''
-        }
-      </div>
-    )
-  }
-}
+        <HoverButton clickHandler={handleRenameGroup} iconComponent={<FaEdit />} />
+        &nbsp;
+      </span>
+      <HoverButton
+        clickHandler={() => setIsShowingCategories(!isShowingCategories)}
+        iconComponent={isShowingCategories ? <FaCaretDown /> : <FaCaretRight />}
+      />
+      {`${group.name} (${group.categories.length})`}
+      &nbsp;
+      { isShowingCategories ? (
+        <div className="indent">
+          {
+            group.categories.map((category) => (
+              <CategoryItemDiv
+                key={category.name}
+                category={category}
+                createNewGroup={createNewGroup}
+                changeGroup={changeGroup}
+                parentGroup={group}
+                groupCollection={groupCollection}
+                transactionCollection={transactionCollection}
+              />
+            ))
+          }
+        </div>
+      ) : ''}
+    </div>
+  );
+};
 
 export default Group;
