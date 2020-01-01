@@ -5,43 +5,40 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
 
-class GenericDropdownItem extends React.Component {
-  // eslint-disable-next-line no-useless-constructor
-  constructor(props) {
-    super(props);
-  }
+const GenericDropdownItem = ({
+  item,
+  displayPropName,
+  clickHandler,
+  displayElement,
+  displayElementFactory,
+}) => {
+  const getItemDisplayString = () => (typeof item === 'string' ? item : item[displayPropName]);
 
-  handleClick = () => {
-    this.props.handleClick(this.props.item);
-  }
+  const getDisplayElement = () => {
+    if (displayElement) return displayElement;
+    if (displayElementFactory) return displayElementFactory(item, displayPropName);
+    return getItemDisplayString();
+  };
 
-  getItemDisplayString = (item, propName) => {
-    item = item || this.props.item;
-    propName = propName || this.props.displayPropName;
-    return typeof item === 'string' ? item : item[propName];
-  }
-
-
-  render() {
-    return (
-      <a className="dropdown-item" onClick={this.handleClick}>
-        {this.getItemDisplayString(this.props.item, this.props.displayPropName)}
-      </a>
-    );
-  }
-}
-
-GenericDropdownItem.propTypes = {
-  item: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
-  displayPropName: PropTypes.string,
-  handleClick: PropTypes.func.isRequired,
-  // eslint-disable-next-line react/no-unused-prop-types
-  getDisplayElement: PropTypes.func,
+  return (
+    <a className="dropdown-item" onClick={() => clickHandler(item)}>
+      {getDisplayElement()}
+    </a>
+  );
 };
 
 export default GenericDropdownItem;
 
+GenericDropdownItem.propTypes = {
+  item: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+  displayPropName: PropTypes.string,
+  clickHandler: PropTypes.func.isRequired,
+  displayElementFactory: PropTypes.func,
+  displayElement: PropTypes.element,
+};
+
 GenericDropdownItem.defaultProps = {
   displayPropName: undefined,
-  getDisplayElement: undefined,
+  displayElementFactory: undefined,
+  displayElement: undefined,
 };

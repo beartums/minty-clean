@@ -14,9 +14,9 @@ const BODY_TYPE = {
 };
 
 class RestClient {
-  static updateGroup(oldGroup, newGroup) {
-    const groupId = oldGroup.id || oldGroup;
-    const newName = newGroup.name || newGroup;
+  static updateGroup(oldGroupOrId, newGroupOrName) {
+    const groupId = oldGroupOrId.id || oldGroupOrId;
+    const newName = newGroupOrName.name || newGroupOrName;
     const url = `${URL.GROUPS}/${groupId}`;
     const body = {};
     body[ENTITIES.GROUP] = {

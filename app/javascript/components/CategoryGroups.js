@@ -7,7 +7,6 @@
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React from 'react';
-import $ from 'jquery';
 import PropTypes from 'prop-types';
 // import _ from 'lodash';
 
@@ -22,19 +21,6 @@ import Modal from './Modal';
 import Category from '../models/Category';
 import CategoryGroup from '../models/CategoryGroup';
 
-const GROUP_NAME_DIALOG = {
-  METHODS: {
-    CREATE: 'create',
-    RENAME: 'rename',
-  },
-  MODAL_ID: 'groupNameModalId',
-  INPUT_ID: 'groupNameInputId',
-};
-
-const GROUP_DELETE_DIALOG = {
-  MODAL_ID: 'groupDeleteModalId',
-};
-
 class CategoryGroups extends React.Component {
   constructor(props) {
     super(props);
@@ -43,15 +29,62 @@ class CategoryGroups extends React.Component {
       maxTransactionDate: this.props.maxDate,
       minTransactionDate: this.props.minDate,
       groups: this.props.groupCollection.items,
-      deleteModal: {},
-      groupNameModal: {},
+      modal: {},
       groupNamePayload: null,
       summaryTransactions: null,
     };
   }
 
-  onDeleteGroupModalAction = (e, button, payload) => {
-    const group = payload;
+  showDeleteGroupModal = (group) => {
+    this.setState({
+      modal: {
+        payload: { group },
+        title: 'Delete Group!',
+        isVisible: true,
+        buttons: [
+          { name: 'Cancel', classString: 'btn-secondary' },
+          { name: 'DELETE!', classString: 'btn-primary', handleClick: this.onDeleteGroupModalAction },
+        ],
+        children: (
+          <span>
+            If you click 'DELETE!', the group will be deleted for good.
+             this action is NOT reversible.  All of the assigned categories WILL
+             be retained, but marked as Unassigned.
+          </span>
+        ),
+      },
+    });
+  }
+
+  showEditGroupNameModal = (params) => {
+    const { categoryName, oldGroup } = params;
+    this.setState({
+      modalInputValue: oldGroup ? oldGroup.name : '',
+      modal: {
+        payload: { categoryName, oldGroup },
+        isVisible: true,
+        title: oldGroup ? 'Edit Group Name' : 'Create New Group',
+        buttons: [
+          { name: 'Cancel', classString: 'btn-secondary' },
+          { name: 'Save', classString: 'btn-primary', handleClick: this.onEditGroupNameAction },
+        ],
+        children: (
+          <span>
+            Enter the name for your new group:
+            <input
+              value={this.state.modalInputValue}
+              onChange={(e) => this.setState({ modalInputValue: e.target.value })}
+              className="form-control"
+              type="text"
+            />
+          </span>
+        ),
+      },
+    });
+  }
+
+  onDeleteGroupModalAction = ({ payload }) => {
+    const { group } = payload;
     RestClient.deleteGroup(group)
       .then((result) => {
         // eslint-disable-next-line eqeqeq
@@ -61,35 +94,33 @@ class CategoryGroups extends React.Component {
       })
       .finally(() => {
         this.setState({
-          deleteModal: { isVisible: false },
+          modal: { isVisible: false },
         });
       });
   }
 
-  onGroupNameModalAction = (e, button, payload) => {
-    const groupName = payload.nameInput.val();
+  onEditGroupNameAction = ({ payload }) => {
+    const groupName = this.state.modalInputValue;
     const { oldGroup, categoryName } = payload;
 
     let promise;
 
     if (oldGroup) {
       promise = this.renameGroup(groupName, oldGroup)
-        .catch((err) => console.log(err))
         .then(() => {
           oldGroup.name = groupName;
         });
     } else {
       promise = this.saveNewGroup(groupName)
-        .catch((err) => console.log(err))
         .then((result) => {
           const group = new CategoryGroup({ id: result.id, name: result.name });
-          this.changeGroup(categoryName, group, oldGroup);
+          this.moveCategory(categoryName, group, oldGroup);
         });
     }
-    promise.catch((err) => console.log('onSavegroupNameModalAction', err))
+    promise.catch((err) => console.log('onSavemodalAction', err))
       .finally(() => {
         this.setState({
-          groupNameModal: { isVisible: false },
+          modal: { isVisible: false },
         });
       });
   }
@@ -98,7 +129,7 @@ class CategoryGroups extends React.Component {
 
   renameGroup = (groupName, group) => RestClient.updateGroup(group, groupName)
 
-  changeGroup = (categoryName, newGroup) => {
+  moveCategory = (categoryName, newGroup) => {
     const newId = newGroup.id;
     let category = this.props.categoryCollection.get('byName', { name: categoryName });
     if (!category) category = { category: categoryName, categoryGroupId: newId };
@@ -122,33 +153,6 @@ class CategoryGroups extends React.Component {
     this.setState({ groups: this.state.groups });
   }
 
-  showDeleteGroupModal = (group) => {
-    this.setState({
-      deleteModal: {
-        payload: group,
-        isVisible: true,
-      },
-    });
-    // $(`#${GROUP_DELETE_DIALOG.MODAL_ID}`).modal('show');
-  }
-
-  showGroupNameModal = (params) => {
-    const { categoryName, oldGroup } = params;
-    this.setState({
-      groupNameModal: {
-        payload: {
-          categoryName, oldGroup, nameInput: $(`#${GROUP_NAME_DIALOG.INPUT_ID}`),
-        },
-        isVisible: true,
-        buttons: [
-          { name: 'Cancel', classString: 'btn-secondary' },
-          { name: 'Save', classString: 'btn-primary', handleClick: this.onGroupNameModalAction },
-        ],
-      },
-    });
-    $(`#${GROUP_NAME_DIALOG.INPUT_ID}`).val(oldGroup ? oldGroup.name : '');
-  }
-
   showTransactions = (transactions) => {
     this.setState({ summaryTransactions: transactions });
   }
@@ -162,10 +166,10 @@ class CategoryGroups extends React.Component {
       .map((group) => (
         <Group
           key={group.name}
-          createNewGroup={this.showGroupNameModal}
-          changeGroup={this.changeGroup}
+          createNewGroup={this.showEditGroupNameModal}
+          moveCategory={this.moveCategory}
           deleteGroup={this.showDeleteGroupModal}
-          renameGroup={this.showGroupNameModal}
+          renameGroup={this.showEditGroupNameModal}
           group={group}
           groupCollection={this.props.groupCollection}
           transactionCollection={this.props.transactionCollection}
@@ -197,29 +201,13 @@ class CategoryGroups extends React.Component {
     return (
       <span>
         <Modal
-          id={GROUP_NAME_DIALOG.MODAL_ID}
-          buttons={this.state.groupNameModal.buttons}
-          payload={this.state.groupNameModal.payload}
-          isVisible={this.state.groupNameModal.isVisible}
-          title="New Group Name"
+          id="GroupModal"
+          buttons={this.state.modal.buttons}
+          payload={this.state.modal.payload}
+          isVisible={this.state.modal.isVisible}
+          title={this.state.modal.title}
         >
-          <input id={GROUP_NAME_DIALOG.INPUT_ID} className="form-control" type="text" />
-        </Modal>
-        <Modal
-          id={GROUP_DELETE_DIALOG.MODAL_ID}
-          title="Delete Group"
-          buttons={
-            [
-              { name: 'Cancel', classString: 'btn-secondary' },
-              { name: 'DELETE!', classString: 'btn-primary', handleClick: this.onDeleteGroupModalAction },
-            ]
-          }
-          payload={this.state.deleteModal.payload}
-          isVisible={this.state.deleteModal.isVisible}
-        >
-            If you click 'Save', the group will be deleted for good.
-             this action is NOT reversible.  All of the assigned categories will
-             be moved to the Unassigned group.
+          {this.state.modal.children}
         </Modal>
         <div className="col-12">
           <div className="row">

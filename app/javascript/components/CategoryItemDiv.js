@@ -25,7 +25,7 @@ const CategoryItemDiv = ({
   transactionCollection,
   groupCollection,
   createNewGroup,
-  changeGroup,
+  moveCategory,
 }) => {
   const [showTransactions, setShowTransactions] = useState(false);
 
@@ -64,7 +64,7 @@ const CategoryItemDiv = ({
           .map((group) => (
                   <ChangeGroupDropdownItem
                     key={group.id}
-                    handleClick={changeGroup}
+                    handleClick={moveCategory}
                     group={group}
                     categoryName={category.name}
                     parentGroup={parentGroup}
@@ -102,5 +102,5 @@ CategoryItemDiv.propTypes = {
   groupCollection: PropTypes.instanceOf(CollectionManager).isRequired,
   transactionCollection: PropTypes.instanceOf(CollectionManager).isRequired,
   createNewGroup: PropTypes.func.isRequired,
-  changeGroup: PropTypes.func.isRequired,
+  moveCategory: PropTypes.func.isRequired,
 };

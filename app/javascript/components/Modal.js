@@ -6,13 +6,13 @@ import $ from 'jquery';
 
 const Modal = ({
   title,
+  message,
   id,
   buttons,
-  onSaveButton,
-  onCancelButton,
   children,
   isVisible,
-  // eslint-disable-next-line react/prop-types
+  okButtonName,
+  cancelButtonName,
   payload,
 }) => {
   const [modalId] = useState(id);
@@ -28,24 +28,9 @@ const Modal = ({
   const handleClick = (e, func, button) => {
     e.persist();
     if (func) {
-      func(e, button, payload);
+      func({ event: e, button, payload });
     }
     isVisible = false;
-  };
-
-  const handleSaveButton = (e) => {
-    e.persist();
-    if (onSaveButton) {
-      onSaveButton(e);
-    }
-    $(`#${modalId}`).modal('hide');
-  };
-
-  const handleCancelButton = (e) => {
-    e.persist();
-    if (onCancelButton) {
-      onCancelButton(e);
-    }
   };
 
   const getButtons = (passedButtons, defaultButtons) => {
@@ -55,7 +40,7 @@ const Modal = ({
         key={button.name}
         type="button"
         className={`btn ${button.classString}`}
-        onClick={(e) => handleClick(e, button.handleClick, button, payload)}
+        onClick={(e) => handleClick(e, button.handleClick, button)}
         data-dismiss={button.leaveOpen ? '' : 'modal'}
       >
         {button.name}
@@ -65,8 +50,8 @@ const Modal = ({
 
   const defaultButtons = (
     [
-      { name: 'Cancel', classString: 'btn-secondary', handleClick: handleCancelButton, leaveOpen: false },
-      { name: 'Save', classString: 'btn-primary', handleClick: handleSaveButton, leaveOpen: false },
+      { name: cancelButtonName, classString: 'btn-secondary', handleClick, leaveOpen: false, payload: { result: cancelButtonName } },
+      { name: okButtonName, classString: 'btn-primary', handleClick, leaveOpen: false, payload: { result: okButtonName } },
     ]
   );
 
@@ -88,7 +73,7 @@ const Modal = ({
             </div>
           )}
           <div className="modal-body">
-            {children}
+            {children || message}
           </div>
           <div className="modal-footer">
             {getButtons(buttons, defaultButtons)}
@@ -103,20 +88,25 @@ export default Modal;
 
 Modal.propTypes = {
   title: PropTypes.string,
+  message: PropTypes.string,
   id: PropTypes.string,
-  onCancelButton: PropTypes.func,
-  onSaveButton: PropTypes.func,
+  okButtonName: PropTypes.string,
+  cancelButtonName: PropTypes.string,
   buttons: PropTypes.arrayOf(PropTypes.object),
   children: PropTypes.node,
   isVisible: PropTypes.bool,
+  // eslint-disable-next-line react/forbid-prop-types
+  payload: PropTypes.any,
 };
 
 Modal.defaultProps = {
   title: undefined,
+  message: undefined,
   id: 'aModal',
-  onCancelButton: undefined,
-  onSaveButton: undefined,
+  okButtonName: 'Ok',
+  cancelButtonName: 'Cancel',
   buttons: undefined,
   children: null,
   isVisible: false,
+  payload: undefined,
 };

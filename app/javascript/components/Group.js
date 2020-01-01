@@ -16,7 +16,7 @@ const Group = ({
   group,
   groupCollection,
   transactionCollection,
-  changeGroup,
+  moveCategory,
   createNewGroup,
   deleteGroup,
   renameGroup,
@@ -53,7 +53,7 @@ const Group = ({
                 key={category.name}
                 category={category}
                 createNewGroup={createNewGroup}
-                changeGroup={changeGroup}
+                moveCategory={moveCategory}
                 parentGroup={group}
                 groupCollection={groupCollection}
                 transactionCollection={transactionCollection}

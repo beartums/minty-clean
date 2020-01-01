@@ -1,58 +1,77 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/no-unused-prop-types */
+/* eslint-disable react/button-has-type */
+/* eslint-disable react/jsx-filename-extension */
 import React from 'react';
 import { PropTypes } from 'prop-types';
 import GenericDropdownItem from './GenericDropdownItem';
 
-/* <GenericDropdownAnchor currentItem={this.props.transaction.category}
-                    dropdownItems={this.props.categories}
+/* <GenericDropdownAnchor currentItem={transaction.category}
+                    dropdownItems={categories}
                     handleClick={this.changeCategory}
                     /> */
 
-class GenericDropdownAnchor extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  handleClick = (selectedItem) => {
+const GenericDropdownAnchor = ({
+  item,
+  displayPropName,
+  dropdownItems,
+  ddiDisplayPropName,
+  ddiDisplayElementFactory,
+  clickHandler,
+  displayElementFactory,
+  displayElement,
+}) => {
+  const handleClick = (selectedItem) => {
     // tell calling prop the original item and the replacement item
-    this.props.handleClick(this.props.item, selectedItem);
-  }
-  getItemDisplayString = (item, propName) => {
-    item = item || this.props.item;
-    propName = propName || this.props.displayPropName;
-    if (typeof(item) === 'string') {
-      return item;
-    } else {
-      return item[this.props.displayPropName];
-    }
-  }
+    clickHandler(item, selectedItem);
+  };
 
-  render() {
-    return (
-      <span>
-        <button className="btn btn-xs dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
-          { this.getItemDisplayString(this.props.currentItem, this.props.displayPropName) }
-        </button>
-        <div className="dropdown-menu">
-          { 
-            this.props.dropdownItems.map( item => {
-              return (<GenericDropdownItem item={item} 
-                            handleClick={this.handleClick} 
-                            displayPropName={this.props.displayPropName}
-                            />)
-            })
-          }
-        </div>
-      </span>
-    )
-  }
-}
+  const getItemDisplayString = () => {
+    if (typeof item === 'string') return item;
+    return item[displayPropName];
+  };
+
+  return (
+    <span>
+      <button className="btn btn-xs dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
+        { getItemDisplayString(item, displayPropName) }
+      </button>
+      <div className="dropdown-menu">
+        {
+          dropdownItems.map((ddi) => (
+            <GenericDropdownItem
+              item={ddi}
+              handleClick={handleClick}
+              displayPropName={ddiDisplayPropName || displayPropName}
+              displayElementFactory={ddiDisplayElementFactory}
+            />
+          ))
+        }
+      </div>
+    </span>
+  );
+};
 
 GenericDropdownAnchor.propTypes = {
-  dropdownItems: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string,PropTypes.object])).isRequired,
+  dropdownItems: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.object,
+    ]),
+  ).isRequired,
   displayPropName: PropTypes.string,
-  currentItem: PropTypes.oneOfType([PropTypes.string,PropTypes.object]).isRequired,
+  item: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object,
+  ]).isRequired,
   handleClick: PropTypes.func.isRequired,
-  getDisplayElement: PropTypes.func
-}
+  displayElementFactory: PropTypes.func,
+};
+
+GenericDropdownAnchor.defaultProps = {
+  displayPropName: null,
+  displayElementFactory: null,
+};
 
 export default GenericDropdownAnchor;

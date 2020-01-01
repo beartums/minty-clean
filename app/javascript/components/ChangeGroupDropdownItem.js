@@ -1,22 +1,41 @@
-import React from 'react'
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import React from 'react';
+import PropTypes from 'prop-types';
 
-class ChangeGroupDropdownItem extends React.Component {
-  constructor(props) {
-    super(props);
-    // need: group, handleClick, categoryName, parentGroup
-  }
+import CategoryGroup from '../models/CategoryGroup';
 
-  handleClick = e => {
-    this.props.handleClick(this.props.categoryName, this.props.group, this.props.parentGroup);
-  }
+const ChangeGroupDropdownItem = ({
+  categoryName,
+  group,
+  parentGroup,
+  handleClick,
+}) => {
+  const onClick = () => {
+    handleClick(categoryName, group, parentGroup);
+  };
 
-  render() {
-    return (
-      <a className="dropdown-item" onClick={this.handleClick} >
-        {this.props.group.name}
-      </a>
-    )
-  }
-}
+  return (
+    <a className="dropdown-item" onClick={onClick}>
+      {group.name}
+    </a>
+  );
+};
 
 export default ChangeGroupDropdownItem;
+
+ChangeGroupDropdownItem.propTypes = {
+  categoryName: PropTypes.string.isRequired,
+  group: PropTypes.instanceOf(CategoryGroup).isRequired,
+  parentGroup: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.instanceOf(CategoryGroup),
+  ]),
+  handleClick: PropTypes.func.isRequired,
+};
+
+ChangeGroupDropdownItem.defaultProps = {
+  parentGroup: undefined,
+};
