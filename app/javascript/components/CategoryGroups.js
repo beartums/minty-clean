@@ -1,3 +1,5 @@
+/* eslint-disable no-trailing-spaces */
+/* eslint-disable react/jsx-indent */
 /* eslint-disable react/require-default-props */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable react/jsx-filename-extension */
@@ -8,6 +10,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 // import _ from 'lodash';
 
 import RestClient from '../services/RestClient';
@@ -29,6 +32,8 @@ class CategoryGroups extends React.Component {
       maxTransactionDate: this.props.maxDate,
       minTransactionDate: this.props.minDate,
       groups: this.props.groupCollection.items,
+      transPeriod: null,
+      transGroups: null,
       modal: {},
       groupNamePayload: null,
       summaryTransactions: null,
@@ -153,8 +158,8 @@ class CategoryGroups extends React.Component {
     this.setState({ groups: this.state.groups });
   }
 
-  showTransactions = (transactions) => {
-    this.setState({ summaryTransactions: transactions });
+  showTransactions = (period, group, transactions) => {
+    this.setState({ transPeriod: period, transGroup: group, summaryTransactions: transactions });
   }
 
   hideTransactions = () => {
@@ -162,34 +167,45 @@ class CategoryGroups extends React.Component {
   }
 
   getGroupListDiv = (groups) => (
-    groups.filter((group) => group.categories.length > 0)
-      .map((group) => (
-        <Group
-          key={group.name}
-          createNewGroup={this.showEditGroupNameModal}
-          moveCategory={this.moveCategory}
-          deleteGroup={this.showDeleteGroupModal}
-          renameGroup={this.showEditGroupNameModal}
-          group={group}
-          groupCollection={this.props.groupCollection}
-          transactionCollection={this.props.transactionCollection}
-        />
-      ))
+    <span>
+      <h3>Group Membership</h3>
+      {
+        groups.filter((group) => group.categories.length > 0)
+          .map((group) => (
+            <Group
+              key={group.name}
+              createNewGroup={this.showEditGroupNameModal}
+              moveCategory={this.moveCategory}
+              deleteGroup={this.showDeleteGroupModal}
+              renameGroup={this.showEditGroupNameModal}
+              group={group}
+              groupCollection={this.props.groupCollection}
+              transactionCollection={this.props.transactionCollection}
+            />
+          ))
+      }
+    </span>
   )
 
-  getTransactionDetailDiv = () => (
-    <table width="100%" className="table table-condensed table-xs">
-      <tbody>
-        { this.state.summaryTransactions.map((t) => (
-          <TransactionRow
-            key={t.id}
-            transaction={t}
-            dateFormat="DD MMM"
-            descriptionWidth={35}
-          />
-        ))}
-      </tbody>
-    </table>
+  getTransactionDetailDiv = (period, group) => (
+    <span>
+      <h4>
+        {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+        <strong>{group.name}</strong> from {moment(period.startDate).format('D MMM')} to {moment(period.endDate).format('D MMM')}
+      </h4>
+      <table width="100%" className="table table-condensed table-xs">
+        <tbody>
+          { this.state.summaryTransactions.map((t) => (
+            <TransactionRow
+              key={t.id}
+              transaction={t}
+              dateFormat="DD MMM"
+              descriptionWidth={35}
+            />
+          ))}
+        </tbody>
+      </table>
+    </span>
   )
 
   render = () => {
@@ -224,7 +240,7 @@ class CategoryGroups extends React.Component {
             </div>
             <div className="col-6">
               { this.state.summaryTransactions
-                ? this.getTransactionDetailDiv()
+                ? this.getTransactionDetailDiv(this.state.transPeriod, this.state.transGroup)
                 : this.getGroupListDiv(groups)}
             </div>
           </div>

@@ -62,7 +62,7 @@ class TransactionSummaryRow extends React.Component {
 
   showTransactions = (period, group) => {
     const trans = this.getPeriodGroupTransactions(period, group);
-    this.props.showTransactions(trans.sort((a, b) => (a.date < b.date ? -1 : 1)));
+    this.props.showTransactions(period, group, trans.sort((a, b) => (a.date < b.date ? -1 : 1)));
   }
 
   hideTransactions = () => {

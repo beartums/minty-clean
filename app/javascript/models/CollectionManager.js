@@ -125,7 +125,10 @@ class CollectionManager {
   }
 
   get(indexName, keyObject) {
-    return this.getItemByIndex(indexName, keyObject);
+    return this.getItemByIndex(
+      indexName,
+      keyObject,
+    );
   }
 
   getItemByIndex(indexName, keyObject) {

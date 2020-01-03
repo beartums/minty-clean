@@ -59,7 +59,7 @@ const CategoryItemDiv = ({
           categoryName={category.name}
           parentGroup={parentGroup}
         />
-        { groupCollection.items.filter((group) => group.id >= 0)
+        { groupCollection.items.filter((group) => group.id >= 0 && group.id !== category.groupId)
           .sort((a, b) => (a.name < b.name ? -1 : 1))
           .map((group) => (
                   <ChangeGroupDropdownItem
