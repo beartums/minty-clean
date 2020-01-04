@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable no-trailing-spaces */
 /* eslint-disable react/jsx-indent */
 /* eslint-disable react/require-default-props */
@@ -11,6 +12,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import SplitterLayout from 'react-splitter-layout';
+import 'react-splitter-layout/lib/index.css';
 // import _ from 'lodash';
 
 import RestClient from '../services/RestClient';
@@ -44,7 +47,7 @@ class CategoryGroups extends React.Component {
     this.setState({
       modal: {
         payload: { group },
-        title: 'Delete Group!',
+        title: `Delete Group: ${group.name}`,
         isVisible: true,
         buttons: [
           { name: 'Cancel', classString: 'btn-secondary' },
@@ -52,7 +55,7 @@ class CategoryGroups extends React.Component {
         ],
         children: (
           <span>
-            If you click 'DELETE!', the group will be deleted for good.
+            If you click 'DELETE!', <strong>{group.name}</strong> will be deleted for good.
              this action is NOT reversible.  All of the assigned categories WILL
              be retained, but marked as Unassigned.
           </span>
@@ -166,6 +169,12 @@ class CategoryGroups extends React.Component {
     this.setState({ summaryTransactions: false });
   }
 
+  handlePanelSizeChange = (size) => {
+    const el = document.getElementById('splitter-wrapper');
+
+    // console.log(el.clientWidth, size, el.clientWidth - size);
+  }
+
   getGroupListDiv = (groups) => (
     <span>
       <h3>Group Membership</h3>
@@ -225,25 +234,35 @@ class CategoryGroups extends React.Component {
         >
           {this.state.modal.children}
         </Modal>
-        <div className="col-12">
-          <div className="row">
-            <div className="col-6">
-              <TransactionSummaryTable
-                groups={groups}
-                periods={this.props.periods}
-                transactions={this.props.transactions}
-                minDate={this.state.minTransactionDate}
-                maxDate={this.state.maxTransactionDate}
-                showTransactions={this.showTransactions}
-                hideTransactions={this.hideTransactions}
-              />
+        <div id="splitter-wrapper">
+          <SplitterLayout
+            id="splitter-panel"
+            customClassName="height-90 white-splitter splitter-1"
+            primaryMinSizze="250"
+            secondaryMinSize="300"
+            onSecondaryPaneSizeChange={this.handlePanelSizeChange}
+          >
+            <div className="card" height="100%">
+              <div className="card-body">
+                <TransactionSummaryTable
+                  groups={groups}
+                  periods={this.props.periods}
+                  transactions={this.props.transactions}
+                  minDate={this.state.minTransactionDate}
+                  maxDate={this.state.maxTransactionDate}
+                  showTransactions={this.showTransactions}
+                  hideTransactions={this.hideTransactions}
+                />
+              </div>
             </div>
-            <div className="col-6">
-              { this.state.summaryTransactions
-                ? this.getTransactionDetailDiv(this.state.transPeriod, this.state.transGroup)
-                : this.getGroupListDiv(groups)}
+            <div className="card" height="100%">
+              <div className="card-body">
+                { this.state.summaryTransactions
+                  ? this.getTransactionDetailDiv(this.state.transPeriod, this.state.transGroup)
+                  : this.getGroupListDiv(groups)}
+              </div>
             </div>
-          </div>
+          </SplitterLayout>
         </div>
       </span>
     );

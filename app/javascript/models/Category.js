@@ -1,13 +1,14 @@
+/* eslint-disable class-methods-use-this */
 import CollectionManager from './CollectionManager';
 
 class Category {
   static collection
+
   static indices = [
-    {name: "byId", properties: 'id', isCollection: false},
-    {name: "byGroupId", properties: 'groupId', isCollection: true},
+    { name: 'byId', properties: 'id', isCollection: false },
+    { name: 'byGroupId', properties: 'groupId', isCollection: true },
     // {name: "byGroupName", properties: 'groupName', isCollection: true},
-    {name: "byName", properties: 'name', isCollection: false},
-    
+    { name: 'byName', properties: 'name', isCollection: false },
   ]
 
   constructor(category) {
@@ -15,48 +16,42 @@ class Category {
     this._name = category.category;
     this._id = category.id;
     this._groupId = category.categoryGroupId;
-    
-    Category.collection.push(this)
+    Category.collection.push(this);
   }
 
-  // set configuration(configuration) {
-  //   this._configuration = configuration;
-  // }
-  // get configuration() {
-  //   return this._configuration;
-  // }
-  // get configurationName() {
-  //   if (!configuration) return ''
-  //   return this._configuration.name ? this._configuration.name : '';
-  // }
+  get id() { return this._id; }
 
-  get id() { return this._id }
   set id(id) {
-     let oldId = this._id; 
-     this._id = id; 
-     this.reindex(this, oldId) }
+    const oldId = this._id;
+    this._id = id;
+    this.reindex(this, oldId);
+  }
 
-  get name() { return this._name }
-  set name(name) { this._name = name; this.reindex(this) }
+  get name() { return this._name; }
 
-  get groupId() { return this._groupId }
+  set name(name) { this._name = name; this.reindex(this); }
+
+  get groupId() { return this._groupId; }
+
   set groupId(id) {
     this._groupId = id; this.reindex(this);
   }
 
-  get category() { return this._name }
-  get categoryGroupId() { return this._groupId }
+  get category() { return this._name; }
 
-  get collection() { return Category.collection }
- 
+  get categoryGroupId() { return this._groupId; }
+
+  get collection() { return Category.collection; }
+
   getGroupName(groupHashById) {
-    let group = groupHashById[this.groupId];
+    const group = groupHashById[this.groupId];
     if (group) return group.name;
-    if (this.groupId===0 || this.groupId) return '__Invalid Group Id Reference';
-    return '__Unassigned'
+    if (this.groupId === 0 || this.groupId) return '__Invalid Group Id Reference';
+    return '__Unassigned';
   }
+
   isUnassigned(groupHashById) {
-    let group = groupHashById[this.groupId];
+    const group = groupHashById[this.groupId];
     if (group) return false;
     return true;
   }
@@ -67,7 +62,7 @@ class Category {
   }
 
   reindex(item, originalId) {
-    Category.collection.reindex(item, originalId)
+    Category.collection.reindex(item, originalId);
   }
 }
 

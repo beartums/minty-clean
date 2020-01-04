@@ -8,11 +8,12 @@ import TransactionRow from './TransactionRow';
 
 import RestClient from '../services/RestClient';
 import { SORT, Sorter } from '../models/Sorter';
-import ImportTransactionsForm from './ImportTransactionsForm';
+import ImportTransactionsButton from './ImportTransactionsButton';
 
 class AllTransactions extends React.Component {
   constructor(props) {
     super(props);
+
     const sorter = new Sorter(this.props.collection.items);
     sorter.addSummary('date', 1, SORT.DIRECTION.DESCENDING)
       .addSummary('category', 2, SORT.DIRECTION.ASCENDING)
@@ -95,7 +96,7 @@ class AllTransactions extends React.Component {
 
     return (
       <span>
-        <ImportTransactionsForm handleClick={this.handleUploadButtonClick} />
+        <ImportTransactionsButton handleClick={this.handleUploadButtonClick} />
         <div className="input-group input-group-sm mb-3">
           <div className="input-group-prepend">
             <span className="input-group-text"><FaSearch /></span>

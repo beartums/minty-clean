@@ -60,3 +60,16 @@
     padding: .25rem
   }
 }
+
+div.splitter-layout.height-90 {
+  height: calc(100% - 53px)!important;
+}
+
+div.splitter-layout.white-splitter > .layout-splitter {
+  background-color: white;
+  width: 2px;
+}
+
+div.splitter-layout > .layout-pane > .card {
+  height: 100%;
+}
