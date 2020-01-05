@@ -169,9 +169,10 @@ class CategoryGroups extends React.Component {
     this.setState({ summaryTransactions: false });
   }
 
-  handlePanelSizeChange = (size) => {
+  handlePanelSizeChange = (secondarySize) => {
     const el = document.getElementById('splitter-wrapper');
-
+    const primarySize = el.clientWidth - secondarySize - 2;
+    return primarySize;
     // console.log(el.clientWidth, size, el.clientWidth - size);
   }
 
@@ -238,8 +239,8 @@ class CategoryGroups extends React.Component {
           <SplitterLayout
             id="splitter-panel"
             customClassName="height-90 white-splitter splitter-1"
-            primaryMinSizze="250"
-            secondaryMinSize="300"
+            primaryMinSize={275}
+            secondaryMinSize={300}
             onSecondaryPaneSizeChange={this.handlePanelSizeChange}
           >
             <div className="card" height="100%">

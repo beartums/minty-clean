@@ -1,9 +1,11 @@
+/* eslint-disable react/sort-comp */
 /* eslint-disable react/button-has-type */
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-plusplus */
 /* eslint-disable react/prop-types */
 import React from 'react';
+import ReactResizeDetector from 'react-resize-detector';
 import {
   FaChevronLeft, FaChevronRight, FaBackward, FaForward, FaStepBackward, FaStepForward,
 } from 'react-icons/fa';
@@ -28,7 +30,28 @@ class TransactionSummaryTable extends React.Component {
         Settings.get(KEYS.DISPLAY.PERIOD_COUNT),
       ),
       periodsBeforeFirst: curIndex,
+      numColumns: Settings.get(KEYS.DISPLAY.PERIOD_COUNT),
     };
+  }
+
+  calcColumns = (width) => {
+    width -= 22; // checkbox
+    width -= 130; // group name
+    const numColumns = Math.floor(width / 100);
+    if (numColumns !== this.state.numColumns) {
+      Settings.set(KEYS.DISPLAY.PERIOD_COUNT, numColumns);
+      // eslint-disable-next-line react/no-access-state-in-setstate
+      const idx = this.state.periodsBeforeFirst;
+      let newIdx = idx + numColumns > this.props.periods.length
+        ? this.props.periods.length - numColumns
+        : idx;
+      newIdx = newIdx < 0 ? 0 : newIdx;
+      this.setState({
+        numColumns,
+        periodsAfterLast: this.props.periods.length - (idx + numColumns),
+        periodsBeforeFirst: newIdx,
+      });
+    }
   }
 
   getPeriodIndex = (period, periods) => {
@@ -41,7 +64,7 @@ class TransactionSummaryTable extends React.Component {
   setFirstPeriod = (delta) => {
     const { periods } = this.props;
     const firstPeriod = Settings.get(KEYS.DISPLAY.FIRST_PERIOD);
-    const numToShow = Settings.get(KEYS.DISPLAY.PERIOD_COUNT);
+    const numToShow = this.state.numColumns || Settings.get(KEYS.DISPLAY.PERIOD_COUNT);
     const curIdx = this.getPeriodIndex(firstPeriod, periods);
 
     let idx;
@@ -99,106 +122,104 @@ class TransactionSummaryTable extends React.Component {
   }
 
   render() {
-    const numPeriodsToShow = Settings.get(KEYS.DISPLAY.PERIOD_COUNT);
+    const numPeriodsToShow = this.state.numColumns;
     const firstPeriod = Settings.get(KEYS.DISPLAY.FIRST_PERIOD);
     const catsToSummarize = this.getCategoriesToSum();
     const periods = this.getPeriodsToShow(this.props.periods, firstPeriod, numPeriodsToShow);
 
     return (
-      <div class-name="row">
-        <div className="col-12">
-
-          <div className="row">
-            <div className="col-6">
-              <button
-                className="btn btn-sm"
-                disabled={this.periodsBeforeFirst() === 0}
-                title="Step backward one period"
-                onClick={() => this.setFirstPeriod(-1)}
-              >
-                <FaChevronLeft />
-              </button>
-                &nbsp;
-              <button
-                className="btn btn-sm"
-                disabled={this.periodsBeforeFirst() < numPeriodsToShow}
-                title="Jump backward one page"
-                onClick={() => this.setFirstPeriod(-1 * numPeriodsToShow)}
-              >
-                <FaBackward />
-              </button>
-                &nbsp;
-              <button
-                className="btn btn-sm"
-                disabled={this.periodsBeforeFirst() === 0}
-                title="Go to the oldest period"
-                onClick={() => this.setFirstPeriod(Number.MIN_SAFE_INTEGER)}
-              >
-                <FaStepBackward />
-              </button>
-            </div>
-            <div className="col-6 text-right">
-              <button
-                className="btn btn-sm"
-                disabled={this.periodsAfterLast() === 0}
-                title="Go to the newest period"
-                onClick={() => this.setFirstPeriod(Number.MAX_SAFE_INTEGER)}
-              >
-                <FaStepForward />
-              </button>
-                &nbsp;
-              <button
-                className="btn btn-sm"
-                disabled={this.periodsAfterLast() < 3}
-                title="Jump forward one page"
-                onClick={() => this.setFirstPeriod(numPeriodsToShow)}
-              >
-                <FaForward />
-              </button>
-                &nbsp;
-              <button
-                className="btn btn-sm"
-                disabled={this.periodsAfterLast() === 0}
-                title="Step forward one period"
-                onClick={() => this.setFirstPeriod(1)}
-              >
-                <FaChevronRight />
-              </button>
-            </div>
+      <div id="transaction-summary" class-name="container">
+        <ReactResizeDetector handleWidth onResize={this.calcColumns} />
+        <div className="row">
+          <div className="col-6">
+            <button
+              className="btn btn-sm"
+              disabled={this.periodsBeforeFirst() === 0}
+              title="Step backward one period"
+              onClick={() => this.setFirstPeriod(-1)}
+            >
+              <FaChevronLeft />
+            </button>
+              &nbsp;
+            <button
+              className="btn btn-sm"
+              disabled={this.periodsBeforeFirst() < numPeriodsToShow}
+              title="Jump backward one page"
+              onClick={() => this.setFirstPeriod(-1 * numPeriodsToShow)}
+            >
+              <FaBackward />
+            </button>
+              &nbsp;
+            <button
+              className="btn btn-sm"
+              disabled={this.periodsBeforeFirst() === 0}
+              title="Go to the oldest period"
+              onClick={() => this.setFirstPeriod(Number.MIN_SAFE_INTEGER)}
+            >
+              <FaStepBackward />
+            </button>
           </div>
-
-          <div className="row">
-            <div className="col-12">
-              <table width="100%" className="table table-condensed table-xs">
-                <TransactionSummaryHeader periods={periods} />
-                <tbody>
-                  { this.props.groups.map((group) => (
-                    <TransactionSummaryRow
-                      key={group.id}
-                      group={group}
-                      periods={periods}
-                      isSummarized={this.state.groupSummaries[group.name]}
-                      showTransactions={this.props.showTransactions}
-                      hideTransactions={this.props.hideTransactions}
-                      toggleSummarized={this.toggleSummarized}
-                    />
-                  ))}
-                  <tr>
-                    <td colSpan="2" />
-                    { periods.map((period) => (
-                      <td key={period.id} className="text-right">
-                        <strong>
-                          {numeral(period.getCategorySums(catsToSummarize)).format('$0.00')}
-                        </strong>
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div className="col-6 text-right">
+            <button
+              className="btn btn-sm"
+              disabled={this.periodsAfterLast() === 0}
+              title="Go to the newest period"
+              onClick={() => this.setFirstPeriod(Number.MAX_SAFE_INTEGER)}
+            >
+              <FaStepForward />
+            </button>
+              &nbsp;
+            <button
+              className="btn btn-sm"
+              disabled={this.periodsAfterLast() < 3}
+              title="Jump forward one page"
+              onClick={() => this.setFirstPeriod(numPeriodsToShow)}
+            >
+              <FaForward />
+            </button>
+              &nbsp;
+            <button
+              className="btn btn-sm"
+              disabled={this.periodsAfterLast() === 0}
+              title="Step forward one period"
+              onClick={() => this.setFirstPeriod(1)}
+            >
+              <FaChevronRight />
+            </button>
           </div>
-
         </div>
+
+        <div className="row">
+          <div className="col-12">
+            <table width="100%" className="table table-condensed table-xs">
+              <TransactionSummaryHeader periods={periods} />
+              <tbody>
+                { this.props.groups.map((group) => (
+                  <TransactionSummaryRow
+                    key={group.id}
+                    group={group}
+                    periods={periods}
+                    isSummarized={this.state.groupSummaries[group.name]}
+                    showTransactions={this.props.showTransactions}
+                    hideTransactions={this.props.hideTransactions}
+                    toggleSummarized={this.toggleSummarized}
+                  />
+                ))}
+                <tr>
+                  <td colSpan="2" />
+                  { periods.map((period) => (
+                    <td key={period.id} className="text-right">
+                      <strong>
+                        {numeral(period.getCategorySums(catsToSummarize)).format('$0.00')}
+                      </strong>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     );
   }
