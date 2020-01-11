@@ -43,7 +43,7 @@
   font-size: smaller;
   padding: 2px 4px 6px 6px;
   position: relative;
-  tops: -2px;
+  top: -2px;
   border-radius: 25%;
   &:hover {
     color: black!important;
@@ -62,7 +62,7 @@
 }
 
 div.splitter-layout.height-90 {
-  height: calc(100% - 53px)!important;
+  height: calc(100% - 55px)!important;
 }
 
 div.splitter-layout.white-splitter > .layout-splitter {

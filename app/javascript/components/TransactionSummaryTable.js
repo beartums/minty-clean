@@ -41,15 +41,14 @@ class TransactionSummaryTable extends React.Component {
     if (numColumns !== this.state.numColumns) {
       Settings.set(KEYS.DISPLAY.PERIOD_COUNT, numColumns);
       // eslint-disable-next-line react/no-access-state-in-setstate
-      const idx = this.state.periodsBeforeFirst;
-      let newIdx = idx + numColumns > this.props.periods.length
-        ? this.props.periods.length - numColumns
-        : idx;
-      newIdx = newIdx < 0 ? 0 : newIdx;
+      let idx = this.state.periodsBeforeFirst;
+      const diff = this.props.periods.length - (idx + numColumns);
+      if (diff < 0) idx += diff;
+      idx = idx < 0 ? 0 : idx;
       this.setState({
         numColumns,
         periodsAfterLast: this.props.periods.length - (idx + numColumns),
-        periodsBeforeFirst: newIdx,
+        periodsBeforeFirst: idx,
       });
     }
   }

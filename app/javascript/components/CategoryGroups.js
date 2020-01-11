@@ -239,7 +239,7 @@ class CategoryGroups extends React.Component {
           <SplitterLayout
             id="splitter-panel"
             customClassName="height-90 white-splitter splitter-1"
-            primaryMinSize={275}
+            primaryMinSize={310}
             secondaryMinSize={300}
             onSecondaryPaneSizeChange={this.handlePanelSizeChange}
           >
