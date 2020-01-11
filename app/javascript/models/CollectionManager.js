@@ -151,7 +151,7 @@ class CollectionManager {
     if (!index) return [];
     const { items } = index;
     if (!items) return [];
-    return Object.keys(items);
+    return Object.keys(items) || [];
   }
 
   reindex(item, itemId) {

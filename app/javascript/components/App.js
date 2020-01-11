@@ -47,6 +47,10 @@ class App extends React.Component {
    * @memberof App
    */
   componentDidMount() {
+    Category.createCollection();
+    CategoryGroup.createCollection();
+    Transaction.createCollection();
+    Period.createCollection();
     this.fetchTransactions().then(() => this.setState({ isLoading: false }));
   }
 
@@ -91,8 +95,10 @@ class App extends React.Component {
         const minDate = isoToDate(minmax.minDate, '2000-01-01');
         const maxDate = isoToDate(minmax.maxDate, '2019-12-31');
 
-        const catKeys = Category.collection.getKeys('byName');
-        const transCats = Transaction.collection.getKeys('byCategory');
+        const catCollection = Category.collection
+        const transCollection = Transaction.collection
+        const catKeys = catCollection ? catCollection.getKeys('byName') : [];
+        const transCats = transCollection ? transCollection.getKeys('byCategory') : [];
 
         const categories = _.union(catKeys, transCats);
 

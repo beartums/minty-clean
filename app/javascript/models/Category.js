@@ -12,7 +12,7 @@ class Category {
   ]
 
   constructor(category) {
-    if (!Category.collection) this.createCollection();
+    if (!Category.collection) this.initCollection();
     this._name = category.category;
     this._id = category.id;
     this._groupId = category.categoryGroupId;
@@ -56,7 +56,11 @@ class Category {
     return true;
   }
 
-  createCollection() {
+  initCollection() {
+    Category.createCollection();
+  }
+
+  static createCollection() {
     Category.collection = new CollectionManager('Category', 'id', 'Categories');
     Category.collection.addIndices(Category.indices);
   }

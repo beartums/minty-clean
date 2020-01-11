@@ -37,7 +37,7 @@ export default class Period {
     this.startDate = startDate.toDate();
     const endDate = startDate.add(this.rangeCount, this.rangeType);
     this.endDate = endDate.toDate();
-    if (!this.collection) this.createCollection();
+    if (!this.collection) this.initCollection();
     this.collection.push(this);
   }
 
@@ -58,7 +58,12 @@ export default class Period {
     return Period.collection;
   }
 
-  createCollection() {
+  // eslint-disable-next-line class-methods-use-this
+  initCollection() {
+    Period.createCollection();
+  }
+
+  static createCollection() {
     Period.collection = new CollectionManager('Period', 'id', 'Periods');
     this.collection.addIndices(Period.indices);
   }

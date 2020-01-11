@@ -14,7 +14,7 @@ class CategoryGroup {
   ]
 
   constructor(categoryGroup) {
-    if (!CategoryGroup.collection) this.createCollection();
+    if (!CategoryGroup.collection) this.initCollection();
     this._name = categoryGroup.name;
     this._id = categoryGroup.id;
     CategoryGroup.collection.push(this);
@@ -55,12 +55,16 @@ class CategoryGroup {
       const transactions = Transaction.collection.get('byCategory', { category: cat });
       return transactions.some((trans) => trans.date >= startDate);
     });
-    const groupCats = Category.collection.getKeys('byName');
+    const groupCats = Category.collection ? Category.collection.getKeys('byName') : [];
     const cats = _.difference(transCats, groupCats).map((cat) => ({ name: cat }));
     return cats || [];
   }
 
-  createCollection() {
+  initCollection() {
+    CategoryGroup.createCollection();
+  }
+
+  static createCollection() {
     CategoryGroup.collection = new CollectionManager('CategoryGroup', 'id', 'CategoryGroups');
     CategoryGroup.collection.addIndices(CategoryGroup.indices);
   }

@@ -23,7 +23,7 @@ class TransactionSummaryTable extends React.Component {
       this.props.periods,
     );
     this.state = {
-      groupSummaries: Settings.get(KEYS.GROUPS.TO_SUM),
+      groupSummaries: Settings.get(KEYS.GROUPS.TO_SUM, {}),
       periodsAfterLast: this.getPeriodsAfterLastCalc(
         this.props.periods,
         curIndex,

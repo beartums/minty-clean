@@ -92,6 +92,10 @@ class Transaction {
   }
 
   createCollectionManager = () => {
+    Transaction.createCollection();
+  }
+
+  static createCollection() {
     Transaction.collection = new CollectionManager('transaction', 'id', 'collection');
     Transaction.collection.addIndices(Transaction.indices);
   }

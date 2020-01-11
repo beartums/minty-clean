@@ -64,6 +64,20 @@ class CategoryGroups extends React.Component {
     });
   }
 
+  getEditChild = () => {
+    return (
+      <span>
+        Enter/edit Group Name:
+        <input
+          value={this.state.modalInputValue}
+          onChange={(e) => this.setState({ modalInputValue: e.target.value })}
+          className="form-control"
+          type="text"
+        />
+      </span>
+    )
+  }
+
   showEditGroupNameModal = (params) => {
     const { categoryName, oldGroup } = params;
     this.setState({
@@ -76,17 +90,7 @@ class CategoryGroups extends React.Component {
           { name: 'Cancel', classString: 'btn-secondary' },
           { name: 'Save', classString: 'btn-primary', handleClick: this.onEditGroupNameAction },
         ],
-        children: (
-          <span>
-            Enter the name for your new group:
-            <input
-              value={this.state.modalInputValue}
-              onChange={(e) => this.setState({ modalInputValue: e.target.value })}
-              className="form-control"
-              type="text"
-            />
-          </span>
-        ),
+        children: null,
       },
     });
   }
@@ -233,7 +237,7 @@ class CategoryGroups extends React.Component {
           isVisible={this.state.modal.isVisible}
           title={this.state.modal.title}
         >
-          {this.state.modal.children}
+          {this.state.modal.children || this.getEditChild()}
         </Modal>
         <div id="splitter-wrapper">
           <SplitterLayout

@@ -14,7 +14,8 @@ class AllTransactions extends React.Component {
   constructor(props) {
     super(props);
 
-    const sorter = new Sorter(this.props.collection.items);
+    const itemCollection = this.props.collection || {};
+    const sorter = new Sorter(itemCollection.items || []);
     sorter.addSummary('date', 1, SORT.DIRECTION.DESCENDING)
       .addSummary('category', 2, SORT.DIRECTION.ASCENDING)
       .addSummary('amount', 3, SORT.DIRECTION.ASCENDING);
@@ -79,7 +80,7 @@ class AllTransactions extends React.Component {
   }
 
   render() {
-    let transactions = this.props.collection.items;
+    let transactions = this.props.collection ? this.props.collection.items : [];
     if (!transactions) return '';
     const optionList = this.getCategoryOptionList();
     transactions = transactions.filter((transaction) => {
