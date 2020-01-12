@@ -226,7 +226,6 @@ class CategoryGroups extends React.Component {
     const groups = Object.values(this.state.groups)
       .sort((a, b) => (a.name < b.name ? -1 : 1))
       .filter((group) => group.categories.length > 0);
-    // let cgs = groups.map( group => new CategoryGroup(group))
 
     return (
       <span>
