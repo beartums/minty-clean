@@ -95,8 +95,8 @@ class App extends React.Component {
         const minDate = isoToDate(minmax.minDate, '2000-01-01');
         const maxDate = isoToDate(minmax.maxDate, '2019-12-31');
 
-        const catCollection = Category.collection
-        const transCollection = Transaction.collection
+        const catCollection = Category.collection;
+        const transCollection = Transaction.collection;
         const catKeys = catCollection ? catCollection.getKeys('byName') : [];
         const transCats = transCollection ? transCollection.getKeys('byCategory') : [];
 

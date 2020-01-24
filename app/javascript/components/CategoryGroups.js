@@ -64,19 +64,17 @@ class CategoryGroups extends React.Component {
     });
   }
 
-  getEditChild = () => {
-    return (
-      <span>
-        Enter/edit Group Name:
-        <input
-          value={this.state.modalInputValue}
-          onChange={(e) => this.setState({ modalInputValue: e.target.value })}
-          className="form-control"
-          type="text"
-        />
-      </span>
-    )
-  }
+  getEditChild = () => (
+    <span>
+      Enter/edit Group Name:
+      <input
+        value={this.state.modalInputValue}
+        onChange={(e) => this.setState({ modalInputValue: e.target.value })}
+        className="form-control"
+        type="text"
+      />
+    </span>
+  )
 
   showEditGroupNameModal = (params) => {
     const { categoryName, oldGroup } = params;
