@@ -53,8 +53,21 @@ class AllTransactions extends React.Component {
       });
   }
 
+  deleteTransaction = (transaction) => {
+    RestClient.deleteTransaction(transaction)
+      .then(() => {
+        this.props.collection.remove(transaction);
+        // eslint-disable-next-line react/no-unused-state
+        this.setState(() => ({ dummy: 1 }));
+      });
+  }
+
   handleUploadButtonClick = (e) => {
     this.props.uploadTransactions(e);
+  }
+
+  handleOverwriteClick = (e) => {
+    this.props.uploadTransactions(e, true);
   }
 
   coalesce = (...args) => {
@@ -97,7 +110,14 @@ class AllTransactions extends React.Component {
 
     return (
       <span>
-        <ImportTransactionsButton handleClick={this.handleUploadButtonClick} />
+        <ImportTransactionsButton
+          handleClick={this.handleUploadButtonClick}
+          buttonText="Upload New Transactions"
+        />
+        <ImportTransactionsButton
+          handleClick={this.handleOverwriteClick}
+          buttonText="Overwrite Transactions"
+        />
         <div className="input-group input-group-sm mb-3">
           <div className="input-group-prepend">
             <span className="input-group-text"><FaSearch /></span>
@@ -115,7 +135,8 @@ class AllTransactions extends React.Component {
                 transaction={transaction}
                 optionList={optionList}
                 changeCategory={this.changeTransactionCategory}
-                fields={['date', 'description', 'amount', 'edit-button', 'category', 'accountName']}
+                deleteTransaction={this.deleteTransaction}
+                fields={['date', 'description', 'amount', 'delete-button', 'edit-button', 'category', 'accountName']}
               />
             ))}
           </tbody>

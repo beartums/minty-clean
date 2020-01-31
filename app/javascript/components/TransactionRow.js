@@ -6,7 +6,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as numeral from 'numeral';
 import moment from 'moment';
-import { FaEdit, FaTimes } from 'react-icons/fa';
+import { FaEdit, FaTimes, FaTrash } from 'react-icons/fa';
 import { getSignedAmount } from '../services/transactionService';
 
 
@@ -24,6 +24,11 @@ class TransactionRow extends React.Component {
     console.log('Change Category:', event.target.value);
     this.setState({ isBeingEdited: false });
     this.props.changeCategory(this.props.transaction, event.target.value);
+  }
+
+  deleteTransaction = (event) => {
+    event.persist();
+    this.props.deleteTransaction(this.props.transaction);
   }
 
   editCategory = () => {
@@ -100,6 +105,13 @@ class TransactionRow extends React.Component {
         </td>
       );
     }
+    if (fieldName === 'delete-button') {
+      return (
+        <td key={index} className="text-right">
+          <FaTrash onClick={this.deleteTransaction} />
+        </td>
+      );
+    }
   }
 
   render() {
@@ -125,6 +137,7 @@ TransactionRow.propTypes = {
   }),
   optionList: PropTypes.arrayOf(PropTypes.object),
   changeCategory: PropTypes.func,
+  deleteTransaction: PropTypes.func,
   fields: PropTypes.arrayOf(PropTypes.string),
   dateFormat: PropTypes.string,
   descriptionWidth: PropTypes.number,

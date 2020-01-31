@@ -6,7 +6,10 @@ class Transaction < ApplicationRecord
     return amount * (transaction_type == "debit" ? -1 : 1)
   end
 
-  def self.import(file)
+  def self.import(file, overwrite)
+    puts overwrite
+    Transaction.destroy_all if overwrite == 'true'
+
     rows = CSV.read(file, headers:true)
     rows = Transaction.getNewTransactions(rows)
 

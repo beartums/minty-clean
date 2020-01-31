@@ -84,11 +84,19 @@ class RestClient {
     return RestClient.goFetch(url, 'GET');
   }
 
-  static uploadTransactions = (file) => {
+  static uploadTransactions = (file, overwrite) => {
     const formData = new FormData();
     formData.append('file', file);
-    const url = `${URL.TRANSACTIONS}/import`;
+    const url = `${URL.TRANSACTIONS}/import?overwrite=${overwrite || 'false'}`;
     return RestClient.goFetch(url, 'POST', formData, BODY_TYPE.FORM);
+  }
+
+  static deleteTransaction = (transaction) => {
+    const { id } = transaction;
+    const url = `${URL.TRANSACTIONS}/${id}`;
+    const body = {};
+    body[ENTITIES.TRANSACTION] = transaction;
+    return RestClient.goFetch(url, 'DELETE', body);
   }
 
   static getTransactionMinMaxDate() {
@@ -111,7 +119,7 @@ class RestClient {
     }
 
     return fetch(url, request).then((response) => {
-      if (response.status !== 200) throw new Error(response);
+      if (response.status < 200 || response.status > 299) throw new Error(response);
       return response.json();
     });
   }

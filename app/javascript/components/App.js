@@ -123,10 +123,10 @@ class App extends React.Component {
    * @return {void}
    * @memberof App
    */
-  handleUploadButtonClick = (e) => {
+  handleUploadButtonClick = (e, overwrite) => {
     const file = e.target.files[0];
 
-    RestClient.uploadTransactions(file)
+    RestClient.uploadTransactions(file, overwrite)
       .then((response) => {
         console.log(response);
         this.fetchTransactions();

@@ -13,7 +13,9 @@ module Api
         end
       
         def destroy
-          transaction.destroy(params[:id])
+          transaction = Transaction.find(params[:id])
+          transaction.destroy
+          render :json => {stuff: 'this is stuff'}
         end
       
         def update
@@ -23,8 +25,7 @@ module Api
         end
 
         def import
-          result = Transaction.import(params[:file].path)
-          #puts result.to_s
+          result = Transaction.import(params[:file].path, params[:overwrite])
           render :json => {count: result.count, status: :created}
         end
 

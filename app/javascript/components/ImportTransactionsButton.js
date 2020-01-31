@@ -5,6 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const ImportTransactionsButton = ({
+  buttonText,
   handleClick,
 }) => {
   const inputStyle = { display: 'none' };
@@ -12,7 +13,7 @@ const ImportTransactionsButton = ({
   return (
     <button className="btn file-field">
       <label className="btn btn-default btn-file">
-        Import Transactions CSV
+        {buttonText}
         <input
           type="file"
           style={inputStyle}
@@ -28,4 +29,9 @@ export default ImportTransactionsButton;
 
 ImportTransactionsButton.propTypes = {
   handleClick: PropTypes.func.isRequired,
+  buttonText: PropTypes.string,
+};
+
+ImportTransactionsButton.defaultProps = {
+  buttonText: 'Import Transactions',
 };
