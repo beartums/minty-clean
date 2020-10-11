@@ -47,10 +47,6 @@ class App extends React.Component {
    * @memberof App
    */
   componentDidMount() {
-    Category.createCollection();
-    CategoryGroup.createCollection();
-    Transaction.createCollection();
-    Period.createCollection();
     this.fetchTransactions().then(() => this.setState({ isLoading: false }));
   }
 
@@ -64,6 +60,10 @@ class App extends React.Component {
     const transactionsP = RestClient.getTransactions();
     const groupsP = RestClient.getGroups();
     const membershipsP = RestClient.getMemberships();
+    Category.createCollection();
+    CategoryGroup.createCollection();
+    Transaction.createCollection();
+    Period.createCollection();
 
     return Promise.all([groupsP, membershipsP, minmaxP, transactionsP])
       .then(([groups, memberships, minmax, transactions]) => {

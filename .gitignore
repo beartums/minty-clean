@@ -34,3 +34,5 @@ yarn-debug.log*
 .yarn-integrity
 
 /vendor
+
+.env

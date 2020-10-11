@@ -41,4 +41,8 @@ class Transaction < ApplicationRecord
     rows.take(rows.length-transactions.length)
   end
 
+  def all_text
+    "#{date.to_s} #{original_description} #{amount.to_s} #{transaction_type} #{account_name} #{notes} #{labels} #{category}"
+  end
+
 end

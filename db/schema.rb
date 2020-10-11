@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_08_193703) do
+ActiveRecord::Schema.define(version: 2020_10_11_222615) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -33,12 +33,17 @@ ActiveRecord::Schema.define(version: 2019_12_08_193703) do
     t.integer "configuration_id"
   end
 
-  create_table "configurations", force: :cascade do |t|
+  create_table "configs", force: :cascade do |t|
     t.string "name"
-    t.string "description"
-    t.integer "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.date "start_date"
+    t.string "period_unit"
+    t.integer "period_length"
+  end
+
+  create_table "period_unit_tables", force: :cascade do |t|
+    t.string "name"
+    t.integer "period_length"
+    t.string "unit_type"
   end
 
   create_table "transactions", force: :cascade do |t|
@@ -53,8 +58,19 @@ ActiveRecord::Schema.define(version: 2019_12_08_193703) do
     t.string "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sha1", limit: 40
     t.index ["date", "amount", "transaction_type"], name: "index_transactions_on_date_and_amount_and_transaction_type"
     t.index ["date"], name: "index_transactions_on_date"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "username"
+    t.string "last_name"
+    t.string "first_name"
+    t.string "email"
+    t.string "password_digest"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end
