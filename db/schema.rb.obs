@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_24_212949) do
+ActiveRecord::Schema.define(version: 2020_10_11_222615) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,12 +62,6 @@ ActiveRecord::Schema.define(version: 2020_10_24_212949) do
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "admin"
-    t.string "reset_password_digest"
-    t.datetime "reset_password_created_at"
-    t.datetime "email_confirmation_requested_at"
-    t.datetime "email_confirmed_at"
-    t.text "email_confirmation_digest"
   end
 
 end

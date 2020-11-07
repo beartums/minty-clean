@@ -1,0 +1,19 @@
+
+Welcome to Minty, <%= @user.username %>
+===============================================
+ 
+You have successfully signed up to example.com,
+your username is: <%= @user.username %>
+your confirmation code is: <%= @confirmation_code %>
+ 
+To confirm you email and login to the site, copy this link to your address bar: 
+<%= url_for(
+      only_path: false, 
+      controller: "api/v1/auth", 
+      action: "confirm_email", 
+      uid: @user.id, 
+      code: @confirmation_code
+    )
+%>
+ 
+Thanks for joining and have a great day!

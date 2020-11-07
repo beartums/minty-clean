@@ -1,61 +1,37 @@
 CategoryGroup.create([{
         "id"=>1,
-        "name"=>"Home & QOL",
-        "configuration_id"=>nil
-    },
+        "name"=>"Home & QOL"},
     {
         "id"=>2,
-        "name"=>"Food & Dining",
-        "configuration_id"=>nil
-    },
+        "name"=>"Food & Dining"},
     {
         "id"=>3,
-        "name"=>"Cash & ATM",
-        "configuration_id"=>nil
-    },
+        "name"=>"Cash & ATM"},
     {
         "id"=>4,
-        "name"=>"Income",
-        "configuration_id"=>nil
-    },
+        "name"=>"Income"},
     {
         "id"=>5,
-        "name"=>"Health & Fitness",
-        "configuration_id"=>nil
-    },
+        "name"=>"Health & Fitness"},
     {
         "id"=>6,
-        "name"=>"Entertainment",
-        "configuration_id"=>nil
-    },
+        "name"=>"Entertainment"},
     {
         "id"=>7,
-        "name"=>"Housing",
-        "configuration_id"=>nil
-    },
+        "name"=>"Housing"},
     {
         "id"=>8,
-        "name"=>"Transportation",
-        "configuration_id"=>nil
-    },
+        "name"=>"Transportation"},
     {
         "id"=>9,
-        "name"=>"Fees",
-        "configuration_id"=>nil
-    },
+        "name"=>"Fees"},
     {
         "id"=>10,
-        "name"=>"Transfers",
-        "configuration_id"=>nil
-    },
+        "name"=>"Transfers"},
     {
         "id"=>11,
-        "name"=>"Utilities",
-        "configuration_id"=>nil
-    },
+        "name"=>"Utilities"},
     {
         "id"=>12,
-        "name"=>"Xmas",
-        "configuration_id"=>nil
-    }
+        "name"=>"Xmas"}
 ])

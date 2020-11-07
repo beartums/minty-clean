@@ -3,7 +3,7 @@ volumes:
   postgres-data:
 services:
   db:
-    image: postgres
+    image: postgres:9.6
     container_name: db
     environment:
       - POSTGRES_USER=${DB_USER}
@@ -12,6 +12,13 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports: 
       - "5433:5432"
+
+  mail:
+    image: schickling/mailcatcher
+    container_name: mailcatcher
+    ports:
+      - 1080:1080
+
   web:
     build: .
     stdin_open: true
@@ -20,6 +27,14 @@ services:
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - SENDGRID_USERNAME
+      - SENDGRID_API_KEY
+      - GMAIL_USERNAME_EG
+      - GMAIL_PASSWORD_EG
+      - GMAIL_USERNAME_SMTP
+      - GMAIL_PASSWORD_SMTP
+      - REFRESH_TOKEN_SECRET_KEY
+      - AUTH_TOKEN_SECRET_KEY
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - .:/myapp

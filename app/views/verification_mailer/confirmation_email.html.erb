@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>Welcome to Minty, <%= @user.username %></h1>
+    <p>
+      You have successfully signed up for your Minty account, <br>
+      your username is: <%= @user.username %> <br>
+      Your confirmation code is: <%= @confirmation_code %>
+    </p>
+    <p>
+      <%= link_to(
+        'Click here to confirm and login',
+        url_for(only_path: false, controller: "api/v1/auth", 
+                action: "confirm_email", 
+                uid: @user.id, code: @confirmation_code)
+       )
+     %>
+    </p>
+    <p>Thanks for joining and have a great day!</p>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+class Settings
+  REFRESH_TOKEN_TIMEOUT = 24.hours
+  TOKEN_TIMEOUT = 1.hour
+
+  TOKEN_SECRET = ENV['AUTH_TOKEN_SECRET_KEY']
+  REFRESH_SECRET = ENV['REFRESH_TOKEN_SECRET_KEY']
+  ISSUER = 'minty.apps.griffithnet.com'
+end

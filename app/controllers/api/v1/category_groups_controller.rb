@@ -29,7 +29,7 @@ module Api
 
       private 
         def category_group_params
-          params.require(:category_group).permit(:name, :configuration_id)
+          params.require(:category_group).permit(:name)
         end 
     end
   end 
