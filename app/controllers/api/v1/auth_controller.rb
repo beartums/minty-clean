@@ -28,7 +28,7 @@ module Api
       def request_password_reset
         user = User.find_by(username: params[:username]) || User.find_by(email: params[:username])
         user.try(:request_password_reset)
-        render json: { msg: "And email has been sent to the username or email that you submitted" }, status: 200
+        render json: { msg: "An email has been sent to the username or email that you submitted" }, status: 200
       end
 
       def reset_password

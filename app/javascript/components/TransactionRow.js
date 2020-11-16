@@ -9,7 +9,6 @@ import moment from 'moment';
 import { FaEdit, FaTimes, FaTrash } from 'react-icons/fa';
 import { getSignedAmount } from '../services/transactionService';
 
-
 class TransactionRow extends React.Component {
   constructor(props) {
     super(props);
@@ -17,7 +16,6 @@ class TransactionRow extends React.Component {
       isBeingEdited: false,
     };
   }
-
 
   changeCategory = (event) => {
     event.persist();

@@ -8,7 +8,7 @@ import {
   FaCaretRight, FaCaretDown, FaTimes, FaEdit,
 } from 'react-icons/fa';
 
-import HoverButton from './HoverButton';
+import HoverButton from './shared/HoverButton';
 
 import CategoryItemDiv from './CategoryItemDiv';
 

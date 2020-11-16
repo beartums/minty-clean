@@ -104,8 +104,11 @@ TransactionSummaryRow.propTypes = {
     endDate: PropTypes.date,
   })).isRequired,
   group: PropTypes.shape({
-    id: PropTypes.any,
+    id: PropTypes.number,
     name: PropTypes.string,
-    categories: PropTypes.array,
+    categories: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+    })),
   }),
 };

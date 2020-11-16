@@ -1,3 +1,4 @@
+/* eslint-disable import/extensions */
 /* eslint no-console:0 */
 // This file is automatically compiled by Webpack, along with any other files
 // present in this directory. You're encouraged to place your actual application logic in
@@ -14,11 +15,13 @@
 //
 // const images = require.context('../images', true)
 // const imagePath = (name) => images(name, true)
-import 'bootstrap'
-import './src/application'
+import 'bootstrap';
+/* eslint-disable-next-line import/no-unresolved */
+import './src/application';
 
-console.log('Hello World from Webpacker')
+const componentRequireContext = require.context('components', true);
+const ReactRailsUJS = require('react_ujs');
+
+console.log('Hello World from Webpacker');
 // Support component names relative to this directory:
-var componentRequireContext = require.context("components", true);
-var ReactRailsUJS = require("react_ujs");
 ReactRailsUJS.useContext(componentRequireContext);

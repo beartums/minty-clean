@@ -22,7 +22,7 @@ import RestClient from '../services/RestClient';
 import TransactionSummaryTable from './TransactionSummaryTable';
 import TransactionRow from './TransactionRow';
 import Group from './Group';
-import Modal from './Modal';
+import Modal from './shared/Modal';
 
 import Category from '../models/Category';
 import CategoryGroup from '../models/CategoryGroup';

@@ -1,4 +1,3 @@
-
 const Settings = window.localStorage;
 
 export function getAll() {

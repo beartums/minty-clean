@@ -39,6 +39,13 @@ export const KEYS = {
   GROUPS: {
     TO_SUM: 'groups_to_sum',
   },
+  TOKENS: {
+    AUTH: 'auth_token',
+    REFRESH: 'refresh_token',
+  },
+  USER: {
+    USERNAME: 'username',
+  },
 };
 
 export class Settings {
