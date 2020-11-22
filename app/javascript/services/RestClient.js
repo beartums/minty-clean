@@ -71,7 +71,7 @@ class RestClient {
       category: oldCategory.category,
     };
 
-    if (oldCategory.id) {
+    if (Number.isFinite(oldCategory.id)) {
       method = 'PATCH';
       url += `/${oldCategory.id}`;
     } else {
@@ -182,7 +182,7 @@ class RestClient {
   }
 
   static goFetch = (url, method, body, bodyType) => {
-    let request = {
+    const request = {
       method,
     };
     if (bodyType === BODY_TYPE.FORM) {
@@ -191,7 +191,7 @@ class RestClient {
       request.body = JSON.stringify(body);
       request.headers = HEADERS.JSON;
     }
-    request = this.setAuthHeader(request);
+    this.setAuthHeader(request);
 
     return fetch(url, request).then((response) => {
       // if (response.status < 200 || response.status > 299) throw new Error(response);
@@ -199,8 +199,10 @@ class RestClient {
         if (Settings.get(KEYS.TOKENS.REFRESH)) {
           return this.refreshTokens()
             .then((refreshResponse) => {
-              if (refreshResponse.ok) return this.returnResponse(fetch(url, request));
-              else return this.returnResponse(refreshResponse, true);
+              if (refreshResponse.ok) {
+                this.setAuthHeader(request);
+                return fetch(url, request).then((data) => this.returnResponse(data));
+              } else return this.returnResponse(refreshResponse, true);
             });
         } else return this.returnResponse(response, true);
       } else return this.returnResponse(response);

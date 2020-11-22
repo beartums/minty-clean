@@ -13,7 +13,7 @@ const Login = () => {
     RestClient.fetchLogin(username, password)
       .then((result) => {
         if (result.ok) {
-          console.log(`woohoo.  successfully logged in ${result.msg}`);
+          // console.log(`woohoo.  successfully logged in ${result.msg}`);
           // Settings.set(KEYS.TOKENS.AUTH, result.token);
           // Settings.set(KEYS.TOKENS.REFRESH, result.refreshToken);
           window.location.replace(window.location.origin);

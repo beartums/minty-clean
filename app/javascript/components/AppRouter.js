@@ -18,7 +18,7 @@ import { FaUser } from 'react-icons/fa';
 // import { toast } from 'react-toastify';
 
 import Transaction from '../models/Transaction';
-import CategoryGroup from '../models/CategoryGroup';
+import CategoryGroup, { UNCATEGORIZED_GROUP } from '../models/CategoryGroup';
 import Category from '../models/Category';
 import Period from '../models/Period';
 
@@ -35,6 +35,7 @@ import AllTransactions from './AllTransactions';
  * @param  {any} props React Properties
  * @extends React.Component
  */
+
 class AppRouter extends React.Component {
   constructor(props) {
     console.time('setup');
@@ -84,7 +85,7 @@ class AppRouter extends React.Component {
         groups.forEach((group) => {
           new CategoryGroup(group);
         });
-        new CategoryGroup({ id: -2, name: 'UNCATEGORIZED' });
+        new CategoryGroup(UNCATEGORIZED_GROUP);
 
         // // memberships
         memberships.forEach((membership) => {
@@ -97,6 +98,13 @@ class AppRouter extends React.Component {
         const filteredTransactions = [];
         transactions.forEach((transaction) => {
           new Transaction(transaction);
+          if (!Category.collection.get('byName', { name: transaction.category })) {
+            new Category({
+              category: transaction.category,
+              id: transaction.category,
+              categoryGroupId: UNCATEGORIZED_GROUP.id,
+            });
+          }
           if (transaction.date < firstPeriod.isoStartDate) return;
           filteredTransactions.push(transaction);
         });

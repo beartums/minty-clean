@@ -36,6 +36,7 @@ const CategoryItemDiv = ({
   return (
     <div className="indent">
       {category.name}
+      &nbsp;
         (
           {transactionCollection.get('byCategory', { category: category.name }).length}
         )
@@ -75,7 +76,8 @@ const CategoryItemDiv = ({
         <div className="indent">
           <table className="table table-condensed table-xs">
             <tbody>
-              {transactionCollection.get('byCategory', category)
+              {transactionCollection.get('byCategory', { category: category.name })
+                .sort((a, b) => (a.name < b.name ? -1 : 1))
                 .map((transaction) => (
                   <TransactionRow
                     key={transaction.id}

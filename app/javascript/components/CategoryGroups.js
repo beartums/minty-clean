@@ -39,7 +39,7 @@ class CategoryGroups extends React.Component {
       transGroups: null,
       modal: {},
       groupNamePayload: null,
-      summaryTransactions: null,
+      summaryTransasactions: null,
     };
   }
 
@@ -123,7 +123,7 @@ class CategoryGroups extends React.Component {
     } else {
       promise = this.saveNewGroup(groupName)
         .then((result) => {
-          const group = new CategoryGroup({ id: result.id, name: result.name });
+          const group = new CategoryGroup({ id: result.data.id, name: result.data.name });
           this.moveCategory(categoryName, group, oldGroup);
         });
     }
@@ -149,8 +149,9 @@ class CategoryGroups extends React.Component {
       .then((result) => {
         if (category.id) {
           category.groupId = newId;
+          if (category.id !== result.data.id) category.id = result.data.id;
         } else {
-          new Category(result);
+          new Category(result.data);
         }
         this.setState({ categoryIndex: Category.collection });
       });

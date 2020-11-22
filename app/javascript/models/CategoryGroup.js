@@ -5,6 +5,11 @@ import Category from './Category';
 import Transaction from './Transaction';
 import { Settings, KEYS } from '../services/settings';
 
+export const UNCATEGORIZED_GROUP = {
+  id: -2,
+  name: 'UNCATEGORIZED',
+};
+
 class CategoryGroup {
   static collection
 
@@ -41,7 +46,7 @@ class CategoryGroup {
   set name(name) { this._name = name; this.reindex(this); }
 
   get categories() {
-    if (this._id < 0) return this.getUngroupedCategories();
+    // if (this._id < 0) return this.getUngroupedCategories();
     const cats = Category.collection ? Category.collection.get('byGroupId', { groupId: this.id }) : [];
     return cats || [];
   }

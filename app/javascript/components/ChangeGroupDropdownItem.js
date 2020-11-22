@@ -28,7 +28,13 @@ export default ChangeGroupDropdownItem;
 
 ChangeGroupDropdownItem.propTypes = {
   categoryName: PropTypes.string.isRequired,
-  group: PropTypes.instanceOf(CategoryGroup).isRequired,
+  group: PropTypes.oneOfType([
+    PropTypes.instanceOf(CategoryGroup),
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      name: PropTypes.string,
+    }),
+  ]).isRequired,
   parentGroup: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.instanceOf(CategoryGroup),

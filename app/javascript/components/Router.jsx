@@ -34,7 +34,7 @@ const Router = () => {
           </Route>
         </Switch>
       </BrowserRouter>
-      <ToastContainer positions="bottom-center" autoClose="5000" closeOnClick pauseOnFocusLoss pauseOnHover/>
+      <ToastContainer positions="bottom-center" autoClose={5000} closeOnClick pauseOnFocusLoss pauseOnHover />
     </div>
   );
 };
