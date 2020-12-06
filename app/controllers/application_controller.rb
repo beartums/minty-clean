@@ -33,7 +33,16 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  
+  def user_transaction_set
+    if !params[:transaction_set_id].blank?
+      @transaction_set = logged_in_user.trasnactions_sets.find(params[:transaction_set_id])
+    elsif logged_in_user.transaction_sets.count == 1
+      logged_in_user.transaction_sets.first
+    else
+      nil
+    end
+  end
+
   def logged_in_user
     payload = decoded_token
     if payload

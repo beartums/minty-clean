@@ -1,44 +1,33 @@
 require 'csv';
 
 class Transaction < ApplicationRecord
+  belongs_to :transaction_set, optional: true
+  belongs_to :account
+  has_many :transaction_tag_memberships
+  has_many :tags, through: :transaction_tag_memberships
+
+  validates :date, presence: true
+  validates :transaction_type, presence: true, inclusion: %w(debit credit)
+  validates :amount, presence: true, numericality: true
+  validates :account, presence: true
+  validate  :date_is_a_date
 
   def getSignedAmount
+    signed_amount
+  end
+
+  def signed_amount
     return amount * (transaction_type == "debit" ? -1 : 1)
   end
 
-  def self.import(file, overwrite)
-    puts overwrite
-    Transaction.destroy_all if overwrite == 'true'
-
-    rows = CSV.read(file, headers:true)
-    rows = Transaction.getNewTransactions(rows)
-
-    #import a CSV file, using a DB transaction
-    ActiveRecord::Base.transaction do
-      rows.reverse_each do |row|
-        Transaction.create(
-          date: Time.strptime(row["Date"],"%m/%d/%Y"),
-          description: row["Description"],
-          original_description: row["Original Description"],
-          transaction_type: row["Transaction Type"],
-          account_name: row["Account Name"],
-          amount: row["Amount"],
-          category: row["Category"],
-          labels: row["Labels"],
-          notes: row["Notes"]
-        )
-     end
-    end
-    return { success: true, count: rows.length, status: :created }
+  def set_tags(tag_names)
+    self.tags = tag_names.map {|name| transaction_set.tags.find_or_initialize_by(name: name) }
+    save!
   end
 
-  def self.getNewTransactions(rows)
-    # ONLY works if rows file has ALL the transactions in it
-    transactions = Transaction.all
-    if transactions.length > rows.length
-      throw "Bad Transaction file!  Not enough rows"
-    end
-    rows.take(rows.length-transactions.length)
+  def date_is_a_date
+    return if date.is_a?(Date) || date.is_a?(Time)
+    errors.add(:date, "date must be valid date or time value")
   end
 
   def all_text
