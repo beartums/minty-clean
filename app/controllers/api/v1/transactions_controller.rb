@@ -25,7 +25,7 @@ module Api
         end
 
         def import
-          result = Transaction.import_csv(params[:file].path, params[:overwrite])
+          result = user_transaction_set.import_csv(params[:file].path, params[:overwrite], params[:auto_accounts])
           render :json => {count: result.count, status: :created}
         end
 

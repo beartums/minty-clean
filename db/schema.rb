@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_06_130544) do
+ActiveRecord::Schema.define(version: 2020_12_09_233048) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -85,6 +85,19 @@ ActiveRecord::Schema.define(version: 2020_12_06_130544) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["transaction_set_id"], name: "index_expense_groups_on_transaction_set_id"
+  end
+
+  create_table "expense_mappings", force: :cascade do |t|
+    t.string "description"
+    t.string "account"
+    t.string "category"
+    t.bigint "expense_category_id"
+    t.bigint "transaction_set_id"
+    t.string "new_description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expense_category_id"], name: "index_expense_mappings_on_expense_category_id"
+    t.index ["transaction_set_id"], name: "index_expense_mappings_on_transaction_set_id"
   end
 
   create_table "period_unit_tables", force: :cascade do |t|
@@ -189,6 +202,8 @@ ActiveRecord::Schema.define(version: 2020_12_06_130544) do
   add_foreign_key "category_groups", "transaction_sets"
   add_foreign_key "expense_categories", "expense_groups"
   add_foreign_key "expense_groups", "transaction_sets"
+  add_foreign_key "expense_mappings", "expense_categories"
+  add_foreign_key "expense_mappings", "transaction_sets"
   add_foreign_key "tags", "transaction_sets"
   add_foreign_key "transaction_tag_memberships", "tags"
   add_foreign_key "transaction_tag_memberships", "transactions"

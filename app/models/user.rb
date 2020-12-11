@@ -1,8 +1,8 @@
 class User < ApplicationRecord
   has_secure_password
 
-  has_many  :user_transaction_set_memberships
-  has_many  :transaction_sets, through: :user_transaction_set_memberships
+  has_many  :transaction_set_settings, class_name: "UserTransactionSetMembership"
+  has_many  :transaction_sets, through: :transaction_set_settings
   has_many  :import_batches
   has_one :config, class_name: "UserConfig",  dependent: :destroy
 

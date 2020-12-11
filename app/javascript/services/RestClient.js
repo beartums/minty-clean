@@ -187,6 +187,7 @@ class RestClient {
     };
     if (bodyType === BODY_TYPE.FORM) {
       request.body = body;
+      request.headers = {};
     } else {
       request.body = JSON.stringify(body);
       request.headers = HEADERS.JSON;

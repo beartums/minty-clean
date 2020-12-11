@@ -1,15 +1,25 @@
+require 'csv'
+
 class TransactionSet < ApplicationRecord
-  has_many :transactions
-  has_many :accounts
-  has_many :account_mappings
-  has_many :tags
-  has_many :import_batches
+  has_many :transactions, dependent: :destroy
+  has_many :accounts, dependent: :destroy
+  has_many :account_mappings, dependent: :destroy
+  has_many :tags, dependent: :destroy
 
-  has_many  :user_transaction_set_memberships
-  has_many  :users, through: :user_transaction_set_memberships
+  has_many  :user_settings, class_name: "UserTransactionSetMembership", dependent: :destroy
+  has_many  :users, through: :user_settings
 
-  def assign_transaction_accounts(transactions)
-    
+  def transactions_count
+    self.transactions.count
+  end
+  def accounts_count
+    self.accounts.count
+  end
+  def first_transaction_at
+    self.transactions.minimum(:date)
+  end
+  def last_transaction_at
+    self.transactions.maximum(:date)
   end
   
   def unmapped_account_names(transactions = nil)
@@ -20,9 +30,9 @@ class TransactionSet < ApplicationRecord
   def new_accounts_and_mappings(mappings = [], default_account_type = nil)
     default_account_type ||= AccountType.first
     mappings.map do |mapping|
-      a = Account.new(name: mapping, account_type_id: default_account_type.id, transaction_set_id: self.id)
-      a.account_mappings << AccountMapping.new(inbound_string: mapping, transaction_set_id: self.id)
-      a
+      a = Account.create(name: mapping, account_type_id: default_account_type.id, transaction_set_id: self.id)
+      a.account_mappings << AccountMapping.create(inbound_string: mapping, transaction_set_id: self.id)
+      [mapping, a.id]
     end
   end
 
@@ -34,28 +44,37 @@ class TransactionSet < ApplicationRecord
   end
 
   def import_csv(file, overwrite = false, auto_accounts = false)
-    puts overwrite
     
+    overwrite = [true, 'true'].include?(overwrite)
+    auto_accounts = [true, 'true'].include?(auto_accounts)
     rows = CSV.read(file, headers:true)
-    rows = overwrite == 'true' ? rows.take(rows.length) : getNewTransactions(rows)
+    rows = overwrite ? rows.take(rows.length) : getNewTransactions(rows)
     
+    # values = .filter {|v| Time.strptime(row["Date"],'%m/%d/%Y') < self.ignore_before} unless self.ignore_before.blank?
+
     mappings = incoming_account_mappings(rows)
     unmapped_accts = unmapped_accounts(mappings)
-    unless (auto_accounts == 'true' || unmapped_accts.blank?)
+    unless (auto_accounts || unmapped_accts.blank?)
       raise StandardError.new('Unmapped acounts with auto_accounts = false')
     end
-    new_accounts_and_mappings(unmapped_accts) unless unmapped_accts.blank?
+    unless unmapped_accts.blank?
+      new_mappings = new_accounts_and_mappings(unmapped_accts).to_h
+      mappings = mappings.merge(new_mappings)
+    end
 
     db_columns = %i(description original_description transaction_type account_name
                     amount category labels notes transaction_set_id account_id date year month day)
     csv_columns = ["Description", "Original Description", "Transaction Type", "Account Name",
                     "Amount", "Category", "Labels", "Notes"]
+
     
-    values = rows.reverse.map.with_index do |row, idx|
+    values = rows.reverse.map do |row, idx|
       date = Time.strptime(row["Date"],'%m/%d/%Y')
       additional_vals = [ self.id, mappings[row["Account Name"]], date, date.year, date.month, date.day]
       csv_columns.map { |col| row[col] } + additional_vals 
     end
+
+
 
     TransactionSet.transaction do
       if overwrite == 'true'

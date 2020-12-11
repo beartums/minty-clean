@@ -35,7 +35,7 @@ module Api
         @user = User.find_by(username: params[:username])
         if @user.reset_password(params[:code], params[:password], params[:password_confirmation])
           render json: logged_in_payload(@user, "Password reset!  You are logged in"), status: 200
-          redirect_to '/login'
+          # redirect_to '/login'
         else
           render json: { error: "new password rejected" }, status: 401
         end

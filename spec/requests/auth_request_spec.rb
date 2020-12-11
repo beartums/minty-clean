@@ -24,6 +24,7 @@ RSpec.describe "Auth", type: :request do
     end
 
     it "rejects an expired token" do
+      user = User.first
       travel (-1.day)
       post '/api/v1/login', 
             :params => { username: user.username, password: 'test'}
@@ -76,11 +77,10 @@ RSpec.describe "Auth", type: :request do
       refresh_token = JSON.parse(response.body)['refresh_token']
       get "/api/v1/users/#{user.id}", :headers => { "Authorization": "Bearer #{token}" }
       expect(response.status).to eq(200)
-
       travel Settings::TOKEN_TIMEOUT + 1.hour
       get "/api/v1/users/#{user.id}", :headers => { "Authorization": "Bearer #{token}" }
       expect(response.status).to eq(401)
-      get "/api/v1/refresh_mah_token", :params => { refresh_token: refresh_token }
+      post "/api/v1/refresh_mah_token", :params => { refresh_token: refresh_token }
       expect(response).to have_http_status(200)
       expect(JSON.parse(response.body)).to include('token', 'refresh_token')
       token = JSON.parse(response.body)['token']
