@@ -14,6 +14,11 @@ Rails.application.routes.draw do
       resources :category_group_memberships, only: [:index, :create, :destroy, :update]
       resources :transactions, only: [:index, :create, :destroy, :update]
       resources :users, only: [:create, :update, :destroy, :index, :show]
+      resources :transaction_sets, only: [:create, :index, :destroy, :show, :update]
+      resources :account_mappings
+      resources :accounts
+      resources :expense_mappings
+      resources :account_types
       resources :transactions do 
         collection do
           post :import

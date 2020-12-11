@@ -33,12 +33,22 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  
+  def user_transaction_set
+    if !params[:transaction_set_id].blank?
+      logged_in_user.transaction_sets.find(params[:transaction_set_id])
+    elsif logged_in_user.transaction_sets.count == 1
+      logged_in_user.transaction_sets.first
+    else
+      nil
+    end
+  end
+
   def logged_in_user
+    return @user unless @user.blank?
     payload = decoded_token
     if payload
       user_id = payload[0]['id']
-      @user = User.find_by(id: user_id)
+      @user ||= User.find_by(id: user_id)
       @user
     end
   end

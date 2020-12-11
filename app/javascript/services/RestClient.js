@@ -171,42 +171,43 @@ class RestClient {
     Settings.set(KEYS.USER.USERNAME, '');
   }
 
-  static returnResponse = (response, needRelogin) => {
+  static returnResponse = async (response, needRelogin) => {
     if (!response.ok) {
       if (needRelogin) window.location.replace('/login');
-    }
-    return response.json().then((data) => {
-      response.data = data;
       return response;
-    });
+    }
+    const data = await response.json();
+    response.data = data;
+    return response;
   }
 
-  static goFetch = (url, method, body, bodyType) => {
+  static goFetch = async (url, method, body, bodyType) => {
     const request = {
       method,
     };
     if (bodyType === BODY_TYPE.FORM) {
       request.body = body;
+      request.headers = {};
     } else {
       request.body = JSON.stringify(body);
       request.headers = HEADERS.JSON;
     }
     this.setAuthHeader(request);
 
-    return fetch(url, request).then((response) => {
-      // if (response.status < 200 || response.status > 299) throw new Error(response);
-      if (response.status === 401) {
-        if (Settings.get(KEYS.TOKENS.REFRESH)) {
-          return this.refreshTokens()
-            .then((refreshResponse) => {
-              if (refreshResponse.ok) {
-                this.setAuthHeader(request);
-                return fetch(url, request).then((data) => this.returnResponse(data));
-              } else return this.returnResponse(refreshResponse, true);
-            });
-        } else return this.returnResponse(response, true);
-      } else return this.returnResponse(response);
-    });
+    const response = await fetch(url, request);
+    // if (response.status < 200 || response.status > 299) throw new Error(response);
+    if (response.ok) return this.returnResponse(response);
+    else if (response.status === 401) {
+      if (!Settings.get(KEYS.TOKENS.REFRESH)) return this.returnResponse(response, true);
+      else {
+        const refreshResponse = await this.refreshTokens();
+        if (!refreshResponse.ok) return this.returnResponse(response, true);
+        this.setAuthHeader(request);
+        return fetch(url, request).then((data) => this.returnResponse(data));
+      }
+    } else {
+      return response;
+    }
   }
 }
 

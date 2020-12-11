@@ -17,7 +17,7 @@ module Api
       end
 
       def update
-        unless @user.id == params[:id].to_i
+        unless logged_in_user.id == params[:id].to_i
           render json: {error: "unauthorized"}, status: 403
           return
         end
@@ -31,7 +31,7 @@ module Api
       end
 
       def show
-        render json: {status: 403} unless @user.id == params[:id].to_i
+        render json: {status: 403} unless logged_in_user.id == params[:id].to_i
         
         # only the user cna shoe a user account (for now)
         user = User.find(params[:id])

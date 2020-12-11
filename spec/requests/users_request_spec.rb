@@ -8,7 +8,7 @@ RSpec.describe "Users", type: :request do
     it "creates a valid user" do
       ActionMailer::Base.deliveries = []
       expect {
-        post "/api/v1/users", :params => {username: "test", password:"test", email: "test@example.com"}
+        post "/api/v1/users", :params => {user: {username: "test", password:"test", email: "test@example.com"} }
       }.to change(User, :count).by(1)
       expect(ActionMailer::Base.deliveries.size).to eq(1)
       expect(response).to have_http_status(200)
@@ -18,7 +18,7 @@ RSpec.describe "Users", type: :request do
     it "rejects an invalid user" do
       User.create({username: "test", password:"test", email: "test@examople.com"})
       expect {
-        post "/api/v1/users", :params => {username: "test", password:"test"}
+        post "/api/v1/users", :params => {user: {username: "test", password:"test"} }
       }.to_not change(User, :count)
       expect(response).to have_http_status(400)
       json = JSON.parse(response.body)
@@ -28,7 +28,7 @@ RSpec.describe "Users", type: :request do
 
     it "handles the full email confirmation cycle" do
       expect {
-        post "/api/v1/users", :params => {username: "test", password:"test", email: "test@example.com"}
+        post "/api/v1/users", :params => {user: {username: "test", password:"test", email: "test@example.com"} }
       }.to change(User, :count).by(1)
       user = User.last
       expect(ActionMailer::Base.deliveries.size).to eq(1)
@@ -50,21 +50,18 @@ RSpec.describe "Users", type: :request do
   context "When updating a user" do
     let(:user) { User.create(username: 'test', password: 'test', email: 'test@example.com') }
     let(:user2) { User.create(username: 'test2', password: 'test', email: 'test2@example.com') }
-    let(:token) { JWT.encode({ id: user.id }, 's3cr3t') }
-    let(:headers) { { "Authorization": "Bearer #{token}" } }
+
+    before do
+      allow_any_instance_of(ApplicationController).to receive(:logged_in_user).and_return(user)
+    end
 
     it "allows edits from the same user" do
-      put "/api/v1/users/#{user.id}", :params => { first_name: 'test'}, :headers => headers
+      put "/api/v1/users/#{user.id}", :params => {user: { first_name: 'updated'} }
       expect(response).to have_http_status(200)
-    end
-    
-    it "rejects an unauthorized user" do
-      put "/api/v1/users/#{user.id}", :params => { first_name: 'test' }
-      expect(response).to have_http_status(401)
     end
 
     it "rejects edits from any other regular user" do
-      put "/api/v1/users/#{user2.id}", :params => { first_name: 'test'}, :headers => headers
+      put "/api/v1/users/#{user2.id}", :params => {user: { first_name: 'updated'} }
       expect(response).to have_http_status(403)
     end
 
@@ -72,14 +69,14 @@ RSpec.describe "Users", type: :request do
     end
 
     it "doesn't allow password changes" do
-      put "/api/v1/users/#{user.id}", :params => { password: 'abcdef' }, :headers => headers
+      put "/api/v1/users/#{user.id}", :params => {user: { password: 'abcdef' } }
       expect(response).to have_http_status(400)
       user.reload
       expect(user.authenticate('abcdef')).to be_falsy
     end
 
     it "allows password changes, if current password is passed and correct" do
-      put "/api/v1/users/#{user.id}", :params => { password: 'abcdef', current_password: 'test' }, :headers => headers
+      put "/api/v1/users/#{user.id}", :params => {user: { password: 'abcdef', current_password: 'test' } }
       expect(response).to have_http_status(200)
       user.reload
       expect(user.authenticate('abcdef')).to be_truthy
@@ -87,7 +84,7 @@ RSpec.describe "Users", type: :request do
 
     it "doesn't allow id changes" do    
       new_id = user.id + 1
-      put "/api/v1/users/#{user.id}", :params => { id: new_id }, :headers => headers
+      put "/api/v1/users/#{user.id}", :params => {user: { id: new_id } }
       expect(response).to have_http_status(200)
       user.reload
       expect(user.id).not_to eq(new_id)

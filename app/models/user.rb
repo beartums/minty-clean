@@ -1,12 +1,17 @@
 class User < ApplicationRecord
   has_secure_password
 
+  has_many  :transaction_set_settings, class_name: "UserTransactionSetMembership"
+  has_many  :transaction_sets, through: :transaction_set_settings
+  has_many  :import_batches
+  has_one :config, class_name: "UserConfig",  dependent: :destroy
+
   validate :username_has_no_at_sign, :email_has_at_sign 
   validates :username, uniqueness: true, presence: true
   validates :email, presence: true, uniqueness: true 
   validates :password_digest, presence: true
 
-  before_save :guard_password
+  before_save :guard_password, :downcase_email
   before_update :guard_email_and_username
   after_commit :reset_password_inputs
 
@@ -49,6 +54,10 @@ class User < ApplicationRecord
     update_attributes(email_confirmed_at: Time.now, email_confirmation_digest: nil)
   end
 
+  def self.by_email(email)
+    User.find_by(email: email.downcase!)
+  end
+
   private
 
     def tokenify(string)
@@ -72,6 +81,10 @@ class User < ApplicationRecord
         errors.add(:current_password, "must match saved password to change password")
         throw :abort
       end
+    end
+
+    def downcase_email
+      self.email.downcase!
     end
 
     def guard_email_and_username
