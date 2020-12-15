@@ -103,6 +103,7 @@ class AllTransactions extends React.Component {
                   + this.coalesce(t.category, '')
                   + this.coalesce(t.account_name, '')
                   + this.coalesce(t.notes, '');
+      if (!text || !text.toLowerCase) return false;
       return (text.toLowerCase().indexOf(this.state.search.toLowerCase()) > -1);
     });
 

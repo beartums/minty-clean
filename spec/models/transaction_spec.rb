@@ -29,14 +29,7 @@ RSpec.describe Transaction, type: :model do
       expect(txn.valid?).to eq(false)
     end
     
-    it "requires an valid account" do
-      txn = Transaction.new(txn_hash.merge(account: nil))
-      expect(txn.valid?).to eq(false)
-      txn = Transaction.new(txn_hash.merge(account_id: 35))
-      expect(txn.valid?).to eq(false)
-    end
-    
-    it "requires an nuumeric amount" do
+    it "requires an numeric amount" do
       txn = Transaction.new(txn_hash.merge(amount: nil))
       expect(txn.valid?).to eq(false)
       txn = Transaction.new(txn_hash.merge(amount: 'string'))
@@ -45,8 +38,30 @@ RSpec.describe Transaction, type: :model do
       expect(txn.valid?).to eq(true)
     end
 
+    it "sets the day, month, and year columns for period retrieval" do
+      txn = Transaction.create(txn_hash.merge(date: '2020-10-10'))
+      expect(txn.year).to eq(2020)
+      expect(txn.month).to eq(10)
+      expect(txn.day).to eq(10)
+    end
+    
   end
-
+  
+  context "wehn updating a transaction" do
+    it "updates the month, day, and year when the date changes" do
+      txn = Transaction.create(txn_hash)
+      expect(txn.year).to eq(Date.new.year)
+      expect(txn.month).to eq(Date.new.month)
+      expect(txn.day).to eq(Date.new.day)
+      txn.date = '2020-10-10'
+      txn.save
+      txn.reload
+      expect(txn.year).to eq(2020)
+      expect(txn.month).to eq(10)
+      expect(txn.day).to eq(10)
+    end
+  end
+  
   context "when retrieving the signed amount" do
     it "returns a negative debit" do
       transaction = Transaction.create(txn_hash.merge(transaction_type: 'debit', amount: 1))

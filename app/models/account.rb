@@ -1,5 +1,5 @@
 class Account < ApplicationRecord
-  belongs_to :account_type
+  belongs_to :account_type, optional: true
   belongs_to :transaction_set
   has_many :account_mappings, dependent: :destroy
   has_many :transactions, dependent: :nullify

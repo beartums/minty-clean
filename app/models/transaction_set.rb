@@ -4,40 +4,49 @@ class TransactionSet < ApplicationRecord
   has_many :transactions, dependent: :destroy
   has_many :accounts, dependent: :destroy
   has_many :account_mappings, dependent: :destroy
+  has_many :expense_groups, dependent: :destroy
+  has_many :expense_mappings, dependent: :destroy
   has_many :tags, dependent: :destroy
 
   has_many  :user_settings, class_name: "UserTransactionSetMembership", dependent: :destroy
   has_many  :users, through: :user_settings
 
+  validates :name, presence: true
+
+  def active_transactions
+    return self.transactions.where('date < ?', self.ignore_before) unless self.ignore_before.blank?
+    return self.transactions
+  end
+
   def transactions_count
-    self.transactions.count
+    self.active_transactions.count
   end
   def accounts_count
     self.accounts.count
   end
   def first_transaction_at
-    self.transactions.minimum(:date)
+    self.active_transactions.minimum(:date)
   end
   def last_transaction_at
-    self.transactions.maximum(:date)
+    self.active_transactions.maximum(:date)
   end
   
   def unmapped_account_names(transactions = nil)
-    transactions ||= self.transactions
+    transactions ||= self.active_transactions
     transactions.where(account_id: nil).distinct.pluck(:account_name).select {|an| !AccountMapping.exists?(inbound_string:an)}
   end
 
   def new_accounts_and_mappings(mappings = [], default_account_type = nil)
     default_account_type ||= AccountType.first
     mappings.map do |mapping|
-      a = Account.create(name: mapping, account_type_id: default_account_type.id, transaction_set_id: self.id)
-      a.account_mappings << AccountMapping.create(inbound_string: mapping, transaction_set_id: self.id)
+      a = self.accounts.create(name: mapping, account_type_id: default_account_type.id)
+      a.account_mappings << self.account_mappings.create(inbound_string: mapping)
       [mapping, a.id]
     end
   end
 
   def map_transaction_accounts(remap = false)
-    transactions = remap ? self.transactions : self.transactions.where(account_id: nil)
+    transactions = remap ? self.active_transactions : self.active_transactions.where(account_id: nil)
     self.account_mappings.all.each do |mapping|
       mapping.account.transactions << transactions.where(account_name: mapping.inbound_string)
     end
@@ -48,9 +57,9 @@ class TransactionSet < ApplicationRecord
     overwrite = [true, 'true'].include?(overwrite)
     auto_accounts = [true, 'true'].include?(auto_accounts)
     rows = CSV.read(file, headers:true)
+    rows = rows.select {|row| Time.strptime(row["Date"],'%m/%d/%Y') >= self.ignore_before} unless self.ignore_before.blank?
     rows = overwrite ? rows.take(rows.length) : getNewTransactions(rows)
     
-    # values = .filter {|v| Time.strptime(row["Date"],'%m/%d/%Y') < self.ignore_before} unless self.ignore_before.blank?
 
     mappings = incoming_account_mappings(rows)
     unmapped_accts = unmapped_accounts(mappings)

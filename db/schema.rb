@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_09_233048) do
+ActiveRecord::Schema.define(version: 2020_12_13_215817) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -96,6 +96,8 @@ ActiveRecord::Schema.define(version: 2020_12_09_233048) do
     t.string "new_description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "original_description"
+    t.integer "application_order"
     t.index ["expense_category_id"], name: "index_expense_mappings_on_expense_category_id"
     t.index ["transaction_set_id"], name: "index_expense_mappings_on_transaction_set_id"
   end

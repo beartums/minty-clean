@@ -12,19 +12,18 @@ Rails.application.routes.draw do
       post "/request_password_reset", to: "auth#request_password_reset"
       resources :category_groups, only: [:index, :create, :destroy, :update]
       resources :category_group_memberships, only: [:index, :create, :destroy, :update]
-      resources :transactions, only: [:index, :create, :destroy, :update]
+      resources :transactions, only: [:index, :create, :destroy, :update] do
+        collection do
+          post :import
+          get :minmax
+        end
+      end
       resources :users, only: [:create, :update, :destroy, :index, :show]
       resources :transaction_sets, only: [:create, :index, :destroy, :show, :update]
       resources :account_mappings
       resources :accounts
       resources :expense_mappings
       resources :account_types
-      resources :transactions do 
-        collection do
-          post :import
-          get :minmax
-        end
-      end
     end
   end
 

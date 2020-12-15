@@ -2,15 +2,16 @@ require 'csv';
 
 class Transaction < ApplicationRecord
   belongs_to :transaction_set, optional: true
-  belongs_to :account
-  has_many :transaction_tag_memberships
+  belongs_to :account, optional: true
+  has_many :transaction_tag_memberships, dependent: :destroy
   has_many :tags, through: :transaction_tag_memberships
 
   validates :date, presence: true
   validates :transaction_type, presence: true, inclusion: %w(debit credit)
   validates :amount, presence: true, numericality: true
-  validates :account, presence: true
+  # validates :account, presence: true
   validate  :date_is_a_date
+  before_save :parse_date
 
   def getSignedAmount
     signed_amount
@@ -33,5 +34,13 @@ class Transaction < ApplicationRecord
   def all_text
     "#{date.to_s} #{original_description} #{amount.to_s} #{transaction_type} #{account_name} #{notes} #{labels} #{category}"
   end
+
+  private
+
+    def parse_date
+      self.month = self.date.month
+      self.year = self.date.year
+      self.day = self.date.day
+    end
 
 end
